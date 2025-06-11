@@ -1,0 +1,8 @@
+--- src/App.jsx
++++ src/App.jsx
+@@ -1,2 +1,4 @@
+       setEnemy(null);
+-      setLastResult(`✅ Victory! You destroyed ${enemy.name}`);
++      const reward = 5;
++      setScrap((prev) => prev + reward); // reward scrap
++      setLastResult(`✅ Victory! You destroyed ${enemy.name} and collected ${reward} scrap.`);
