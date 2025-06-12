@@ -1,0 +1,7 @@
+.ship-sprite {
+  width: 32px;
+  height: 32px;
+  background-image: url('/sprites/ship.png');
+  image-rendering: pixelated;
+  background-size: contain;
+}

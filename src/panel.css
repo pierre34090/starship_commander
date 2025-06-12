@@ -1,0 +1,44 @@
+.panel-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+
+.panel {
+  background: #ffffff;
+  color: #000000;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 220px;
+  text-align: center;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding: 1rem;
+  justify-items: center;
+}
+
+
+.enemy-sprite {
+  width: 150px;
+  height: auto;
+  margin: 0.5rem auto;
+  image-rendering: pixelated;
+  display: block;
+  background: transparent;
+}
+
+.your_ship-sprite {
+  width: 150px;
+  height: auto;
+  margin: 0.5rem auto;
+  image-rendering: pixelated;
+  display: block;
+  background: transparent;
+}

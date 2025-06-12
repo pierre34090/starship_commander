@@ -1,14 +1,16 @@
 import React from "react";
 
-export default function EconomicPanel({ money, income, ecoCost, forceCost, onUpgradeEco, onUpgradeForce }) {
+function EconomicPanel({ money, scrap, income, ecoCost, forceCost, onUpgradeEco, onUpgradeForce }) {
   return (
     <div>
-      <h2>Economic Overview</h2>
+      <h2>Economy</h2>
       <p><strong>Money:</strong> {money.toFixed(2)}</p>
+      <p><strong>Scrap:</strong> {scrap}</p>
       <p><strong>Income:</strong> {income} / sec</p>
-
-      <button onClick={onUpgradeEco}>⬆ Upgrade economy (cost: {ecoCost})</button><br /><br />
-      <button onClick={onUpgradeForce}>⬆ Upgrade combat systems (cost: {forceCost})</button>
+      <button onClick={onUpgradeEco}>Upgrade Economy (cost: {ecoCost})</button>
+      <button onClick={onUpgradeForce}>Upgrade Force (cost: {forceCost})</button>
     </div>
   );
 }
+
+export default EconomicPanel;

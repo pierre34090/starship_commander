@@ -1,0 +1,22 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    // cible moderne, module ESNext pour Vite
+    "target": "esnext",
+    "module": "esnext",
+
+    // résolution de module node, support des imports relatifs et alias
+    "moduleResolution": "node",
+
+    // pour vos .tsx et .ts
+    "jsx": "react-jsx",
+
+    // racine du code source
+    "baseUrl": "src",
+
+    // pour que TS connaisse vite/client et l’API import.meta.*
+    "types": ["vite/client"]
+  },
+  // inclure tout ce qui est dans src
+  "include": ["src"]
+}

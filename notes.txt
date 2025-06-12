@@ -1,0 +1,5 @@
+- Pour lisser l'aleatoire des logue fait plus de tirage a la brotato. DIminue la frustration et augmente l'impact de la stratégie -> eviter le random pur
+Essayer le limiter la divergence: par exmeple mettre de l'entretient plus cher et des enemis plus fort si la perosnne est très riche
+Pour l'equilibrage on joue sur des facteur multiplicatif et additif, tout finira par etre reantable un jour et la progression conevrge facilement
+mecanique de lissage de l'aleatoire: soit a pbase de point de destin comme dans naheulbeuk, soit en emepchant les secanrio trop imporbbalke
+Donner la chance de gagner et le resultat moyen de chaque combatss

@@ -1,0 +1,16 @@
+.tab-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.tab-button {
+  background: #ffffff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: 1px solid #555;
+  cursor: pointer;
+  font-family: monospace;
+}
+.tab-button.active {
+  background: #444;
+}
