@@ -1,70 +1,42 @@
 // src/components/MainScreen.tsx
-import * as React from "react";
-import type { Ship } from "../models/ships/Ship";
-import type { Weapon } from "../models/weapons/Weapon";
+import { useGameContext } from "../contexts/GameContext";
 import ShipPanel from "./ShipPanel";
 import EconomicPanel from "./EconomicPanel";
 import CombatPanel from "./CombatPanel";
 import ShopPanel from "./ShopPanel";
 import WeaponPanel from "./WeaponPanel";
 
-interface MainScreenProps {
-  playerShip: Ship;
-  onRepair: () => void;
-  onUpgradeAttack: () => void;
-  repairCost: number;
+export default function MainScreen() {
+  const {
+    playerShip,
+    repair,
+    repairCost,
+    upgradeForce,
+    upgradeEconomy,
+    money,
+    scrap,
+    income,
+    ecoCost,
+    forceCost,
+    enemy,
+    lastResult,
+    handleGenerateEnemy,
+    fight,
+    skip,
+    weapons,
+    weaponCost,
+    handleBuyWeapon,
+  } = useGameContext();
 
-  money: number;
-  scrap: number;
-  income: number;
-  ecoCost: number;
-  forceCost: number;
-  onUpgradeEconomy: () => void;
-  onUpgradeForce: () => void;
-
-  enemy: Ship | null;
-  lastResult: string | null;
-  onGenerateEnemy: () => void;
-  onFight: () => void;
-  onSkip: () => void;
-
-  weapons: Array<Weapon | null>;
-  weaponCost: number;
-  onBuyWeapon: () => void;
-}
-
-const MainScreen: React.FC<MainScreenProps> = ({
-  playerShip,
-  onRepair,
-  onUpgradeAttack,
-  repairCost,
-  money,
-  scrap,
-  income,
-  ecoCost,
-  forceCost,
-  onUpgradeEconomy,
-  onUpgradeForce,
-  enemy,
-  lastResult,
-  onGenerateEnemy,
-  onFight,
-  onSkip,
-  weapons,
-  weaponCost,
-  onBuyWeapon,
-}) => {
   return (
     <div className="main-screen-container">
-      {/* Ici on n’affiche pas generalMessage, car App le fait */}
       <div className="panel-grid">
         <div className="panel">
           <ShipPanel
             ship={playerShip}
-            // on retire la prop message
             repairCost={repairCost}
-            onRepair={onRepair}
-            onUpgradeAttack={onUpgradeAttack}
+            onRepair={repair}
+            onUpgradeAttack={upgradeForce}
           />
         </div>
         <div className="panel">
@@ -74,16 +46,16 @@ const MainScreen: React.FC<MainScreenProps> = ({
             income={income}
             ecoCost={ecoCost}
             forceCost={forceCost}
-            onUpgradeEco={onUpgradeEconomy}
-            onUpgradeForce={onUpgradeForce}
+            onUpgradeEco={upgradeEconomy}
+            onUpgradeForce={upgradeForce}
           />
         </div>
         <div className="panel">
           <CombatPanel
             enemy={enemy}
-            onGenerate={onGenerateEnemy}
-            onFight={onFight}
-            onSkip={onSkip}
+            onGenerate={handleGenerateEnemy}
+            onFight={fight}
+            onSkip={skip}
             resultMessage={lastResult}
           />
         </div>
@@ -94,13 +66,11 @@ const MainScreen: React.FC<MainScreenProps> = ({
           <WeaponPanel
             weapons={weapons}
             weaponCost={weaponCost}
-            onBuyWeapon={onBuyWeapon}
+            onBuyWeapon={handleBuyWeapon}
           />
         </div>
-        {/* Si tu as d’autres panels, tu les ajoutes ici */}
+        {/* Ajoute d’autres panels ici si besoin */}
       </div>
     </div>
   );
-};
-
-export default MainScreen;
+}
