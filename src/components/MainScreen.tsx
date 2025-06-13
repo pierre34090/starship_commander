@@ -1,14 +1,15 @@
 // src/components/MainScreen.tsx
-import React from "react";
+import * as React from "react";
 import type { Ship } from "../models/ships/Ship";
+import type { Weapon } from "../models/weapons/Weapon";
 import ShipPanel from "./ShipPanel";
 import EconomicPanel from "./EconomicPanel";
 import CombatPanel from "./CombatPanel";
 import ShopPanel from "./ShopPanel";
+import WeaponPanel from "./WeaponPanel";
 
 interface MainScreenProps {
   playerShip: Ship;
-  shipMessage: string | null;
   onRepair: () => void;
   onUpgradeAttack: () => void;
   repairCost: number;
@@ -27,12 +28,13 @@ interface MainScreenProps {
   onFight: () => void;
   onSkip: () => void;
 
-  // éventuellement Shop actions...
+  weapons: Array<Weapon | null>;
+  weaponCost: number;
+  onBuyWeapon: () => void;
 }
 
 const MainScreen: React.FC<MainScreenProps> = ({
   playerShip,
-  shipMessage,
   onRepair,
   onUpgradeAttack,
   repairCost,
@@ -48,47 +50,56 @@ const MainScreen: React.FC<MainScreenProps> = ({
   onGenerateEnemy,
   onFight,
   onSkip,
+  weapons,
+  weaponCost,
+  onBuyWeapon,
 }) => {
   return (
-    <>
-      {/* Ship panel */}
-      <div className="panel">
-        <ShipPanel
-          ship={playerShip}
-          message={shipMessage}
-          repairCost={repairCost}
-          onRepair={onRepair}
-          onUpgradeAttack={onUpgradeAttack}
-        />
+    <div className="main-screen-container">
+      {/* Ici on n’affiche pas generalMessage, car App le fait */}
+      <div className="panel-grid">
+        <div className="panel">
+          <ShipPanel
+            ship={playerShip}
+            // on retire la prop message
+            repairCost={repairCost}
+            onRepair={onRepair}
+            onUpgradeAttack={onUpgradeAttack}
+          />
+        </div>
+        <div className="panel">
+          <EconomicPanel
+            money={money}
+            scrap={scrap}
+            income={income}
+            ecoCost={ecoCost}
+            forceCost={forceCost}
+            onUpgradeEco={onUpgradeEconomy}
+            onUpgradeForce={onUpgradeForce}
+          />
+        </div>
+        <div className="panel">
+          <CombatPanel
+            enemy={enemy}
+            onGenerate={onGenerateEnemy}
+            onFight={onFight}
+            onSkip={onSkip}
+            resultMessage={lastResult}
+          />
+        </div>
+        <div className="panel">
+          <ShopPanel scrap={scrap} />
+        </div>
+        <div className="panel">
+          <WeaponPanel
+            weapons={weapons}
+            weaponCost={weaponCost}
+            onBuyWeapon={onBuyWeapon}
+          />
+        </div>
+        {/* Si tu as d’autres panels, tu les ajoutes ici */}
       </div>
-      {/* Economy panel */}
-      <div className="panel">
-        <EconomicPanel
-          money={money}
-          scrap={scrap}
-          income={income}
-          ecoCost={ecoCost}
-          forceCost={forceCost}
-          onUpgradeEco={onUpgradeEconomy}
-          onUpgradeForce={onUpgradeForce}
-        />
-      </div>
-      {/* Combat panel */}
-      <div className="panel">
-        <CombatPanel
-          enemy={enemy}
-          onGenerate={onGenerateEnemy}
-          onFight={onFight}
-          onSkip={onSkip}
-          resultMessage={lastResult}
-        />
-      </div>
-      {/* Shop panel */}
-      <div className="panel">
-        <ShopPanel scrap={scrap} />
-      </div>
-      {/* On pourrait ici ajouter un bouton Restart si on veut qu’il soit toujours visible */}
-    </>
+    </div>
   );
 };
 
