@@ -26,19 +26,15 @@ export abstract class Ship {
     return this.cloneWithStats(newStats);
   }
 
-  /** Inflige des dégâts immuables via updateStats */
   receiveDamage(dmg: number): this {
-    return this.updateStats({ hp: this.stats.hp - dmg });
+    const newHp = Math.max(0, this.stats.hp - dmg);
+    return this.updateStats({ hp: newHp });
   }
-
-  /** Répare immuablement via updateStats */
   repair(amount: number): this {
-    return this.updateStats({ hp: this.stats.hp + amount });
+    const newHp = Math.min(this.stats.maxHp, this.stats.hp + amount);
+    return this.updateStats({ hp: newHp });
   }
 
-  /**
-   * Attaque la cible et renvoie une nouvelle instance blessée de la cible
-   */
   attack(target: Ship): Ship {
     return target.receiveDamage(this.stats.attack);
   }
