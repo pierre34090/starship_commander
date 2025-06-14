@@ -1,5 +1,5 @@
 // src/components/MainScreen.tsx
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { useGameContext } from "../contexts/GameContext";
 import ShipPanel from "./ShipPanel";
 import EconomicPanel from "./EconomicPanel";
@@ -43,8 +43,9 @@ export default function MainScreen() {
           <ShipPanel
             ship={playerShip}
             repairCost={repairCost}
+            forceCost={forceCost}
             onRepair={repair}
-            onUpgradeAttack={upgradeForce}
+            onUpgradeForce={upgradeForce}
           />
         </div>
         <div className="panel">
@@ -53,9 +54,7 @@ export default function MainScreen() {
             scrap={scrap}
             income={income}
             ecoCost={ecoCost}
-            forceCost={forceCost}
             onUpgradeEco={upgradeEconomy}
-            onUpgradeForce={upgradeForce}
           />
         </div>
 

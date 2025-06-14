@@ -1,6 +1,6 @@
 import React from "react";
 
-function EconomicPanel({ money, scrap, income, ecoCost, forceCost, onUpgradeEco, onUpgradeForce }) {
+function EconomicPanel({ money, scrap, income, ecoCost, onUpgradeEco}) {
   return (
     <div>
       <h2>Economy</h2>
@@ -8,7 +8,6 @@ function EconomicPanel({ money, scrap, income, ecoCost, forceCost, onUpgradeEco,
       <p><strong>Scrap:</strong> {scrap}</p>
       <p><strong>Income:</strong> {income} / sec</p>
       <button onClick={onUpgradeEco}>Upgrade Economy (cost: {ecoCost})</button>
-      <button onClick={onUpgradeForce}>Upgrade Force (cost: {forceCost})</button>
     </div>
   );
 }

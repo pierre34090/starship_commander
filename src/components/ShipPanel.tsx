@@ -4,17 +4,19 @@ import type { Ship } from '../models/ships/Ship';
 interface ShipPanelProps {
   ship: Ship;                       // l’objet vaisseau à afficher
   message?: string | null; 
-  repairCost?: number;         // feedback optionnel (ex: “Réparé +10 HP”)
+  repairCost?: number;        // feedback optionnel (ex: “Réparé +10 HP”)
+  forceCost?: number;          // coût de l'amélioration de la force
   onRepair?: () => void;            // callback facultatif pour réparer
-  onUpgradeAttack?: () => void;     // callback facultatif pour augmenter l’attaque
+  onUpgradeForce?: () => void;      // callback facultatif pour améliorer la force
 }
 
 const ShipPanel: React.FC<ShipPanelProps> = ({
   ship,
   message,
   repairCost,
+  forceCost,
   onRepair,
-  onUpgradeAttack,
+  onUpgradeForce,
 }) => {
   const { attack, hp, maxHp } = ship.stats;
   const name = ship.constructor.name;
@@ -34,8 +36,10 @@ const ShipPanel: React.FC<ShipPanelProps> = ({
         {onRepair && <button onClick={onRepair}>
             Repair
             {repairCost !== undefined ? ` (${repairCost})` : ''}
+            
         </button>}
-        {onUpgradeAttack && <button onClick={onUpgradeAttack}>Upgrade Attack</button>}
+      
+      <button onClick={onUpgradeForce}>Upgrade Attack (cost: {forceCost})</button>
       </div>
     </div>
   );
