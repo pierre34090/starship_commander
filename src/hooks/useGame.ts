@@ -2,10 +2,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { Player_ship } from "../models/ships/playable_ship/Player_ship";
 import type { Ship } from "../models/ships/Ship";
-import { generateEnemy as generateEnemyLogic } from "../logic/generate_enemy";
-import { resolveFight } from "../logic/fight_manager";
 import { generateRandomWeapon } from "../logic/generate_weapon";
 import { Weapon } from "../models/weapons/Weapon";
+
+import { useCombat } from "./useCombat";
+import type { FightResult } from "../types/combat";
 
 export interface UseGameReturn {
   playerShip: Ship;
@@ -17,17 +18,20 @@ export interface UseGameReturn {
   repairCost: number;
   repairValue: number;
 
-  // Nouveaux états pour les armes
+  // États pour les armes
   weapons: Array<Weapon | null>;
   weaponCost: number;
 
+  // Combat : exposé depuis useCombat
   enemy: Ship | null;
   gameOver: boolean;
   lastResult: string | null;
+
+  // Messages UI
   shipMessage: string | null;
   generalMessage: string | null;
 
-  // actions
+  // actions globales
   upgradeEconomy: () => void;
   upgradeForce: () => void;
   handleGenerateEnemy: () => void;
@@ -36,12 +40,12 @@ export interface UseGameReturn {
   repair: () => void;
   restartGame: () => void;
 
-  // nouvelle action pour acheter une arme
+  // arme
   handleBuyWeapon: () => void;
 }
 
 export function useGame(): UseGameReturn {
-  // États existants...
+  // ----- États globaux -----
   const [playerShip, setPlayerShip] = useState<Ship>(() => new Player_ship());
   const [money, setMoney] = useState(500);
   const [scrap, setScrap] = useState(0);
@@ -53,15 +57,28 @@ export function useGame(): UseGameReturn {
 
   // États pour les armes
   const [weapons, setWeapons] = useState<Array<Weapon | null>>([null, null, null]);
-  const [weaponCost, setWeaponCost] = useState(100); // coût initial, à ajuster
+  const [weaponCost, setWeaponCost] = useState(100);
 
-  const [enemy, setEnemy] = useState<Ship | null>(null);
-  const [gameOver, setGameOver] = useState(false);
-  const [lastResult, setLastResult] = useState<string | null>(null);
+  // Messages pour l'UI (upgrade, achat arme, réparation, etc.)
   const [shipMessage, setShipMessage] = useState<string | null>(null);
   const [generalMessage, setGeneralMessage] = useState<string | null>(null);
 
-  // Passive income...
+  // ----- Intégration useCombat -----
+  // Attention : on suppose que useCombat exporte aussi resetCombat pour réinitialiser l’état interne du combat.
+  // Si ce n'est pas encore implémenté, ajoute dans useCombat :
+  //   const resetCombat = useCallback(() => { setEnemy(null); setLastResult(null); setGameOver(false); }, []);
+  // Puis retourne `resetCombat` dans UseCombatReturn.
+  const {
+    enemy,
+    lastResult,
+    gameOver,
+    generateEnemy,
+    fight: combatFight,
+    skip: combatSkip,
+    resetCombat, // Assure-toi que useCombat exporte bien ceci.
+  } = useCombat();
+
+  // ----- Effet de revenu passif -----
   useEffect(() => {
     const interval = setInterval(() => {
       setMoney((m) => m + income * 0.25);
@@ -69,11 +86,9 @@ export function useGame(): UseGameReturn {
     return () => clearInterval(interval);
   }, [income]);
 
-
-  
-
-  // Modifie restartGame pour remettre à zéro les armes aussi
+  // ----- restartGame -----
   const restartGame = useCallback(() => {
+    // Réinitialiser état global
     setPlayerShip(new Player_ship());
     setMoney(500);
     setScrap(0);
@@ -82,21 +97,23 @@ export function useGame(): UseGameReturn {
     setForceCost(20);
     setRepairCost(10);
     setRepairValue(10);
-    setEnemy(null);
-    setGameOver(false);
-    setLastResult(null);
+
+    // Réinitialiser messages
     setShipMessage(null);
     setGeneralMessage(null);
 
-    // Remise à zéro des armes
+    // Réinitialiser armes
     setWeapons([null, null, null]);
     setWeaponCost(100);
-  }, []);
 
-  // ... le reste de useGame (upgradeEconomy, upgradeForce, handleGenerateEnemy, fight, skip, repair) ...
+    // Réinitialiser combat
+    if (typeof resetCombat === "function") {
+      resetCombat();
+    }
+    // Note : si useCombat n'exporte pas resetCombat, il faut le rajouter dans useCombat.
+  }, [resetCombat]);
 
-  // Exemple placeholder pour upgradeEconomy, etc. (à copier depuis la version précédente)...
-
+  // ----- upgradeEconomy -----
   const upgradeEconomy = useCallback(() => {
     if (money >= ecoCost) {
       setMoney((m) => m - ecoCost);
@@ -108,6 +125,7 @@ export function useGame(): UseGameReturn {
     }
   }, [money, ecoCost]);
 
+  // ----- upgradeForce -----
   const upgradeForce = useCallback(() => {
     if (money >= forceCost) {
       setMoney((m) => m - forceCost);
@@ -119,66 +137,46 @@ export function useGame(): UseGameReturn {
     }
   }, [money, forceCost]);
 
+  // ----- handleGenerateEnemy -----
   const handleGenerateEnemy = useCallback(() => {
-    const newEnemy = generateEnemyLogic();
-    setEnemy(newEnemy);
-    setLastResult(null);
-    setGameOver(false);
+    generateEnemy();
+    // on peut réinitialiser certains messages globaux
+    setGeneralMessage(null);
     setShipMessage(null);
-  }, []);
+  }, [generateEnemy]);
 
+  // ----- fight -----
   const fight = useCallback(() => {
-    if (!enemy || gameOver) return;
-    const { newPlayer, newEnemy, lastResult: resultMsg, scrapGain } = resolveFight(playerShip, enemy);
+    // Appelle la logique de useCombat en lui passant playerShip
+    const result: FightResult | null = combatFight(playerShip);
+    if (!result) {
+      // pas d'ennemi ou déjà gameOver
+      return;
+    }
+    // Met à jour playerShip selon résultat du combat
+    const { newPlayer, scrapGain } = result;
     setPlayerShip(newPlayer);
-    if (scrapGain) setScrap((s) => s + scrapGain);
-    setEnemy(newEnemy);
-    const playerDead =
-      resultMsg.startsWith("☠️ Defeat") ||
-      resultMsg === "☠️ Both you and the enemy were destroyed";
-    if (playerDead) {
-      setGameOver(true);
+    if (scrapGain) {
+      setScrap((s) => s + scrapGain);
     }
-    setLastResult(resultMsg || null);
+    // Les états enemy, lastResult, gameOver sont mis à jour à l'intérieur de useCombat
+    // On réinitialise éventuellement les messages globaux
+    setGeneralMessage(null);
     setShipMessage(null);
-  }, [enemy, gameOver, playerShip]);
+  }, [combatFight, playerShip]);
 
+  // ----- skip -----
   const skip = useCallback(() => {
-    if (!enemy) return;
-    const enemyName = enemy.constructor.name;
-    setLastResult(`⏭ You fled from ${enemyName}`);
-    setEnemy(null);
-    setShipMessage(null);
-  }, [enemy]);
-
-  const handleBuyWeapon = useCallback(() => {
-    // 1. Vérifier un slot vide
-    const firstEmptyIndex = weapons.findIndex((w) => w === null);
-    if (firstEmptyIndex === -1) {
-      setGeneralMessage("Tous les emplacements d'armes sont pleins");
-      return;
+    const msg = combatSkip();
+    if (msg) {
+      // Comme lastResult vit dans useCombat, tu peux l'afficher directement depuis useCombat.
+      // Ici, tu peux aussi remettre à null shipMessage/generalMessage si besoin.
+      setGeneralMessage(null);
+      setShipMessage(null);
     }
-    // 2. Vérifier l’argent
-    if (money < weaponCost) {
-      setGeneralMessage("Pas assez d'argent pour acheter une arme");
-      return;
-    }
-    // 3. Dépenser
-    setMoney((m) => m - weaponCost);
-    // (Optionnel) augmenter le coût pour la prochaine arme
-    setWeaponCost((c) => Math.round(c * 1.5));
-    // 4. Générer arme aléatoire
-    const newWeapon = generateRandomWeapon();
-    // 5. Mettre à jour l’état weapons : immuable
-    setWeapons((prev) => {
-      const copy = [...prev];
-      copy[firstEmptyIndex] = newWeapon;
-      return copy;
-    });
-    // 6. Message de feedback
-    setGeneralMessage(`Vous avez obtenu : ${newWeapon.name}`);
-  }, [weapons, money, weaponCost]);
+  }, [combatSkip]);
 
+  // ----- repair -----
   const repair = useCallback(() => {
     if (playerShip.stats.hp >= playerShip.stats.maxHp) {
       setShipMessage("Already at full HP");
@@ -197,6 +195,30 @@ export function useGame(): UseGameReturn {
     setShipMessage(`Repaired ${heal} HP`);
   }, [playerShip, money, repairCost, repairValue]);
 
+  // ----- handleBuyWeapon -----
+  const handleBuyWeapon = useCallback(() => {
+    const firstEmptyIndex = weapons.findIndex((w) => w === null);
+    if (firstEmptyIndex === -1) {
+      setGeneralMessage("Tous les emplacements d'armes sont pleins");
+      return;
+    }
+    if (money < weaponCost) {
+      setGeneralMessage("Pas assez d'argent pour acheter une arme");
+      return;
+    }
+    setMoney((m) => m - weaponCost);
+    setWeaponCost((c) => Math.round(c * 1.5));
+    const newWeapon = generateRandomWeapon();
+    setWeapons((prev) => {
+      const copy = [...prev];
+      copy[firstEmptyIndex] = newWeapon;
+      return copy;
+    });
+    setGeneralMessage(`Vous avez obtenu : ${newWeapon.name}`);
+    setShipMessage(null);
+  }, [weapons, money, weaponCost]);
+
+  // ----- Retour du hook -----
   return {
     playerShip,
     money,
@@ -207,13 +229,13 @@ export function useGame(): UseGameReturn {
     repairCost,
     repairValue,
 
-    // Exposer le tableau d’armes et le coût
     weapons,
     weaponCost,
 
     enemy,
     gameOver,
     lastResult,
+
     shipMessage,
     generalMessage,
 
