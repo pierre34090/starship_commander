@@ -64,10 +64,6 @@ export function useGame(): UseGameReturn {
   const [generalMessage, setGeneralMessage] = useState<string | null>(null);
 
   // ----- Intégration useCombat -----
-  // Attention : on suppose que useCombat exporte aussi resetCombat pour réinitialiser l’état interne du combat.
-  // Si ce n'est pas encore implémenté, ajoute dans useCombat :
-  //   const resetCombat = useCallback(() => { setEnemy(null); setLastResult(null); setGameOver(false); }, []);
-  // Puis retourne `resetCombat` dans UseCombatReturn.
   const {
     enemy,
     lastResult,
@@ -106,11 +102,9 @@ export function useGame(): UseGameReturn {
     setWeapons([null, null, null]);
     setWeaponCost(100);
 
-    // Réinitialiser combat
-    if (typeof resetCombat === "function") {
+    
       resetCombat();
-    }
-    // Note : si useCombat n'exporte pas resetCombat, il faut le rajouter dans useCombat.
+    
   }, [resetCombat]);
 
   // ----- upgradeEconomy -----

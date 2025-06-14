@@ -1,4 +1,5 @@
 // src/components/MainScreen.tsx
+import React, { useCallback } from "react";
 import { useGameContext } from "../contexts/GameContext";
 import ShipPanel from "./ShipPanel";
 import EconomicPanel from "./EconomicPanel";
@@ -26,7 +27,14 @@ export default function MainScreen() {
     weapons,
     weaponCost,
     handleBuyWeapon,
+    gameOver,
+    restartGame,
   } = useGameContext();
+
+  // Wrapper pour Restart
+  const onRestart = useCallback(() => {
+    restartGame();
+  }, [restartGame]);
 
   return (
     <div className="main-screen-container">
@@ -50,15 +58,19 @@ export default function MainScreen() {
             onUpgradeForce={upgradeForce}
           />
         </div>
+
         <div className="panel">
+          {/* CombatPanel prend maintenant en charge le toggle Auto Combat et la boucle interne */}
           <CombatPanel
             enemy={enemy}
             onGenerate={handleGenerateEnemy}
             onFight={fight}
             onSkip={skip}
             resultMessage={lastResult}
+            gameOver={gameOver}
           />
         </div>
+
         <div className="panel">
           <ShopPanel scrap={scrap} />
         </div>
@@ -69,7 +81,10 @@ export default function MainScreen() {
             onBuyWeapon={handleBuyWeapon}
           />
         </div>
-        {/* Ajoute d’autres panels ici si besoin */}
+
+        <div className="panel">
+          <button onClick={onRestart}>Restart</button>
+        </div>
       </div>
     </div>
   );
