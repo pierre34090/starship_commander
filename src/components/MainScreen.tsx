@@ -1,90 +1,35 @@
 // src/components/MainScreen.tsx
-import { useCallback } from "react";
-import { useGameContext } from "../contexts/GameContext";
-import ShipPanel from "./ShipPanel";
-import EconomicPanel from "./EconomicPanel";
-import CombatPanel from "./CombatPanel";
-import ShopPanel from "./ShopPanel";
-import WeaponPanel from "./WeaponPanel";
+
+import { useContext } from 'react';
+import { GameContext } from '../contexts/GameContext';
+import PlayerShipPanel from './PlayerShipPanel';
+import TitlePanel from './TitlePanel';
+import CombatPanel from './CombatPanel';
+import { useNextStage } from '../hooks/useNextStage';
 
 export default function MainScreen() {
-  const {
-    playerShip,
-    repair,
-    repairCost,
-    upgradeForce,
-    upgradeEconomy,
-    money,
-    scrap,
-    income,
-    ecoCost,
-    forceCost,
-    enemy,
-    lastResult,
-    handleGenerateEnemy,
-    fight,
-    skip,
-    weapons,
-    weaponCost,
-    handleBuyWeapon,
-    gameOver,
-    restartGame,
-  } = useGameContext();
+  const context = useContext(GameContext);
+  if (!context) return null;
 
-  // Wrapper pour Restart
-  const onRestart = useCallback(() => {
-    restartGame();
-  }, [restartGame]);
+  const { gameState, metaState } = context;
+  const { nextStage } = useNextStage();
+
+  const ship = gameState.player_ship;
 
   return (
     <div className="main-screen-container">
       <div className="panel-grid">
-        <div className="panel">
-          <ShipPanel
-            ship={playerShip}
-            repairCost={repairCost}
-            forceCost={forceCost}
-            onRepair={repair}
-            onUpgradeForce={upgradeForce}
-          />
-        </div>
-        <div className="panel">
-          <EconomicPanel
-            money={money}
-            scrap={scrap}
-            income={income}
-            ecoCost={ecoCost}
-            onUpgradeEco={upgradeEconomy}
-          />
-        </div>
-
-        <div className="panel">
-          {/* CombatPanel prend maintenant en charge le toggle Auto Combat et la boucle interne */}
-          <CombatPanel
-            enemy={enemy}
-            onGenerate={handleGenerateEnemy}
-            onFight={fight}
-            onSkip={skip}
-            resultMessage={lastResult}
-            gameOver={gameOver}
-          />
-        </div>
-
-        <div className="panel">
-          <ShopPanel scrap={scrap} />
-        </div>
-        <div className="panel">
-          <WeaponPanel
-            weapons={weapons}
-            weaponCost={weaponCost}
-            onBuyWeapon={handleBuyWeapon}
-          />
-        </div>
-
-        <div className="panel">
-          <button onClick={onRestart}>Restart</button>
-        </div>
+        <PlayerShipPanel ship={ship} />
+        <CombatPanel />
+        <PlayerShipPanel ship={ship} />
+        <PlayerShipPanel ship={ship} />
       </div>
+
+      {metaState.gameWin && (
+        <div style={{ marginTop: '1rem' }}>
+          <button onClick={nextStage}>Étape suivante</button>
+        </div>
+      )}
     </div>
   );
 }

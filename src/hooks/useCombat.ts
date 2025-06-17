@@ -1,81 +1,63 @@
 // src/hooks/useCombat.ts
-import { useState, useCallback } from "react";
-import { generateEnemy as generateEnemyLogic } from "../logic/generate_enemy";
-import { resolveFight } from "../logic/fight_manager";
-import type { Ship } from "../models/ships/Ship";
-import type { UseCombatReturn, FightResult } from "../types/combat";
 
-export function useCombat(): UseCombatReturn {
-  const [enemy, setEnemy] = useState<Ship | null>(null);
-  const [lastResult, setLastResult] = useState<string | null>(null);
-  const [gameOver, setGameOver] = useState(false);
+import { useState, useContext, useCallback } from 'react';
+import { GameContext } from '../contexts/GameContext';
+import type { GameState } from '../libs/state/GameState';
+import type { GameMetaState } from '../libs/state/MetaGameState';
+import { fightAllEnemies } from '../libs/combat/CombatSequence';
 
-  // Générer un nouvel ennemi
-  const generateEnemy = useCallback(() => {
-    const newEnemy = generateEnemyLogic();
-    setEnemy(newEnemy);
-    setLastResult(null);
-    setGameOver(false);
-  }, []);
+type GameContextType = {
+  gameState: GameState | null;
+  setGameState: (state: GameState) => void;
+  metaState: GameMetaState;
+  setMetaState: (state: GameMetaState) => void;
+};
 
-  // Lancer le combat : prend en argument le playerShip actuel,
-  // renvoie un FightResult ou null si pas d'ennemi / déjà gameOver.
-  const fight = useCallback(
-    (playerShip: Ship): FightResult | null => {
-      if (!enemy || gameOver) {
-        return null;
-      }
-      // Appeler la logique existante
-      const result = resolveFight(playerShip, enemy);
-      // On suppose que resolveFight renvoie { newPlayer, newEnemy, lastResult, scrapGain? }
-      const { newPlayer, newEnemy, lastResult: resultMsg, scrapGain } = result;
-      // Mettre à jour l'état local
-      setEnemy(newEnemy);
-      // Déterminer si le joueur est mort
-      const playerDead =
-        resultMsg.startsWith("☠️ Defeat") ||
-        resultMsg === "☠️ Both you and the enemy were destroyed";
-      if (playerDead) {
-        setGameOver(true);
-      }
-      setLastResult(resultMsg || null);
-      return {
-        newPlayer,
-        newEnemy,
-        lastResult: resultMsg,
-        scrapGain,
-      };
-    },
-    [enemy, gameOver]
-  );
+export function useCombat() {
+  // Type assertion to ensure correct typing
+  const { gameState, setGameState, metaState, setMetaState } = useContext(GameContext) as GameContextType;
 
-  // Fuite / skip
-  const skip = useCallback((): string | null => {
-    if (!enemy) {
-      return null;
+  const [combatInProgress, setCombatInProgress] = useState(false);
+  const [combatResult, setCombatResult] = useState<'win' | 'lose' | null>(null);
+
+  const startCombat = useCallback(() => {
+    if (!gameState) return;
+    setCombatInProgress(true);
+    setCombatResult(null);
+
+    const [newPlayer, newEnemies, newBoss] = fightAllEnemies(
+      gameState.player_ship,
+      gameState.stage_enemy_ships,
+      gameState.stage_boss_ship,
+      new Set()
+    );
+
+    setGameState({
+      ...gameState,
+      player_ship: newPlayer,
+      stage_enemy_ships: newEnemies,
+      stage_boss_ship: newBoss,
+    });
+
+    if (newPlayer.hp <= 0) {
+      setCombatResult('lose');
+      setMetaState({ ...metaState, gameOver: true });
+    } else if (
+      newEnemies.every((e) => e.hp <= 0) &&
+      (newBoss === null || newBoss.hp <= 0)
+    ) {
+      setCombatResult('win');
+      setMetaState({ ...metaState, gameWin: true });
+    } else {
+      setCombatResult(null);
     }
-    const enemyName = enemy.constructor.name;
-    const msg = `⏭ You fled from ${enemyName}`;
-    setLastResult(msg);
-    setEnemy(null);
-    setGameOver(false);
-    return msg;
-  }, [enemy]);
 
-  // Réinitialiser entièrement l'état du combat
-  const resetCombat = useCallback(() => {
-    setEnemy(null);
-    setLastResult(null);
-    setGameOver(false);
-  }, []);
+    setCombatInProgress(false);
+  }, [gameState, metaState, setGameState, setMetaState]);
 
   return {
-    enemy,
-    lastResult,
-    gameOver,
-    generateEnemy,
-    fight,
-    skip,
-    resetCombat,
+    combatInProgress,
+    combatResult,
+    startCombat,
   };
 }

@@ -1,20 +1,7 @@
+// src/App.tsx
 
-import "./App.css";   
-import "./panel.css";
-import GameOverScreen from "./components/GameOverScreen";
-import MainScreen from "./components/MainScreen";
-import { useGameContext } from "./contexts/GameContext";
+import GameContainer from './GameContainer';
 
 export default function App() {
-  const { gameOver, lastResult, restartGame } = useGameContext();
-
-  return (
-    <div className="app-container">
-      {gameOver ? (
-        <GameOverScreen lastResult={lastResult} onRestart={restartGame} />
-      ) : (
-        <MainScreen />
-      )}
-    </div>
-  );
+  return <GameContainer />;
 }

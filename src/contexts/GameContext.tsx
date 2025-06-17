@@ -1,25 +1,30 @@
-import { createContext, useContext } from "react";
-import type { UseGameReturn } from "../hooks/useGame";
-import { useGame } from "../hooks/useGame";
+// src/contexts/GameContext.tsx
 
-// ① On crée un contexte qui peut contenir UseGameReturn ou null
-const GameContext = createContext<UseGameReturn | null>(null);
+import React, { createContext, useState, ReactNode } from 'react';
+import type { GameState } from '../libs/state/GameState';
+import type { GameMetaState } from '../libs/state/MetaGameState';
+import { initGameMetaState } from '../libs/state/MetaGameState';
 
-// ② Le provider : il instancie useGame() et le met dans le contexte
-export function GameProvider({ children }: { children: React.ReactNode }) {
-  const game = useGame();
+type GameContextType = {
+  gameState: GameState | null;
+  setGameState: React.Dispatch<React.SetStateAction<GameState | null>>;
+  metaState: GameMetaState;
+  setMetaState: React.Dispatch<React.SetStateAction<GameMetaState>>;
+};
+
+export const GameContext = createContext<GameContextType | undefined>(undefined);
+
+type GameProviderProps = {
+  children: ReactNode;
+};
+
+export function GameProvider({ children }: GameProviderProps) {
+  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [metaState, setMetaState] = useState<GameMetaState>(initGameMetaState());
+
   return (
-    <GameContext.Provider value={game}>
+    <GameContext.Provider value={{ gameState, setGameState, metaState, setMetaState }}>
       {children}
     </GameContext.Provider>
   );
-}
-
-// ③ Hook pour récupérer le contexte plus confortablement
-export function useGameContext(): UseGameReturn {
-  const ctx = useContext(GameContext);
-  if (!ctx) {
-    throw new Error("useGameContext must be used inside GameProvider");
-  }
-  return ctx;
 }
