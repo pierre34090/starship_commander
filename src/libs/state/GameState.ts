@@ -4,7 +4,6 @@ import type { EconomyState } from './EconomyState'
 import type { EnemyShipState } from './Ships/EnemyShipState'
 import type { PlayerShipState } from './Ships/PlayerShipState'
 
-import { initPlayerShipState } from './Ships/PlayerShipState';
 import { initEconomyState } from './EconomyState';
 import { generateEnemiesForStage } from '../models/Ships/EnemyFactory';
 

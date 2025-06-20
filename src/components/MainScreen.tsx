@@ -2,17 +2,17 @@
 
 import { useContext } from 'react';
 import { GameContext } from '../contexts/GameContext';
+
 import PlayerShipPanel from './PlayerShipPanel';
-import TitlePanel from './TitlePanel';
 import CombatPanel from './CombatPanel';
-import { useNextStage } from '../hooks/useNextStage';
+import EconomyPanel from './EconomyPanel';
+import { MessagePanel } from '../components/MessagePanel';
 
 export default function MainScreen() {
   const context = useContext(GameContext);
   if (!context) return null;
 
   const { gameState, metaState } = context;
-  const { nextStage } = useNextStage();
 
   const ship = gameState.player_ship;
 
@@ -21,15 +21,9 @@ export default function MainScreen() {
       <div className="panel-grid">
         <PlayerShipPanel ship={ship} />
         <CombatPanel />
-        <PlayerShipPanel ship={ship} />
-        <PlayerShipPanel ship={ship} />
+        <EconomyPanel />
+        <MessagePanel />
       </div>
-
-      {metaState.gameWin && (
-        <div style={{ marginTop: '1rem' }}>
-          <button onClick={nextStage}>Étape suivante</button>
-        </div>
-      )}
     </div>
   );
 }

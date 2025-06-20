@@ -13,6 +13,7 @@ const PlayerShipPanel: React.FC<ShipPanelProps> = ({ ship }) => {
       <p><strong>HP:</strong> {ship.hp} / {ship.maxHp}</p>
       <p><strong>Attack:</strong> {ship.attack}</p>
       <p><strong>Defense:</strong> {ship.defense}</p>
+      <p><strong>XP:</strong> {ship.xp}</p>
     </div>
   );
 };
