@@ -5,6 +5,8 @@ import type { GameMetaState } from './MetaGameState';
 import { generateEnemiesForStage } from '../models/Ships/EnemyFactory';
 import { MessageBus } from '../../contexts/MessageContext';
 
+import { isShipDead } from './Ships/ShipState';
+
 const LAST_STAGE_INDEX = 2;
 
 export function advanceStage(
@@ -42,9 +44,9 @@ export function checkStageOutcome(
   const enemies = gameState.stage_enemy_ships;
   const boss = gameState.stage_boss_ship;
 
-  if (player.hp <= 0) {
-    return { ...metaState, gameOver: true };
-  }
+
+  if (isShipDead(player)) return { ...metaState, gameOver: true };
+
 
   const allEnemiesDead = enemies.every(e => e.status !== 'alive');
   const bossDead = !boss || boss.status !== 'alive';

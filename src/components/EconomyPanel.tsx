@@ -4,6 +4,7 @@ import React, { useContext } from 'react';
 import { GameContext } from '../contexts/GameContext';
 import { increaseAttack, increaseIncome, repairPlayer } from '../libs/logic/economy/Economy';
 
+
 export default function EconomyPanel() {
   const context = useContext(GameContext);
   if (!context) return null;

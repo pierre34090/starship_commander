@@ -8,7 +8,17 @@ import React, {
   ReactNode,
 } from 'react';
 
-export type MessageType = 'info' | 'error' | 'success' | 'warning';
+export type MessageType = 'info' | 'error' | 'success' | 'warning' | 'combat';
+
+export const messageTypeColors: Record<MessageType, string> = {
+  info: '#000',
+  error: 'red',
+  success: 'green',
+  warning: 'orange',
+  combat: 'blue',
+};
+
+export const allMessageTypes = Object.keys(messageTypeColors) as MessageType[];
 
 export type GameMessage = {
   id: number;

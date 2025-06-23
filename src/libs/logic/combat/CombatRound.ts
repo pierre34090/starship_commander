@@ -1,68 +1,85 @@
-// src/libs/combat/CombatRound.ts
+// src/libs/logic/Combat/CombatRound.ts
 
-import type { PlayerShipState } from '../state/Ships/PlayerShipState';
-import type { EnemyShipState } from '../state/Ships/EnemyShipState';
-import type { GameState } from '../state/GameState';
-import type { GameMetaState } from '../state/MetaGameState';
+import { computeEffectiveAttributes } from '../../state/Ships/ShipLogic';
+import { processWeaponRound } from './CombatEngine';
 
-/**
- * Applies one combat round against the next active enemy (normal or boss).
- * Does not handle gameOver/gameWin logic.
- */
-export function runCombatStep(
-  gameState: GameState,
-  metaState: GameMetaState,
-): [GameState, GameMetaState, EnemyShipState | undefined] {
-  const player = gameState.player_ship;
-  const enemies = [...gameState.stage_enemy_ships];
-  const boss = gameState.stage_boss_ship;
-
-  const nextEnemy = findNextEnemy(enemies, boss);
-  if (!nextEnemy) return [gameState, metaState, undefined];
-
-  const [updatedPlayer, updatedEnemy, defeatedEnemy] = applyCombatRound(player, nextEnemy);
-
-  const updatedEnemies = enemies.map(e => e === nextEnemy ? updatedEnemy : e);
-  const updatedBoss = boss === nextEnemy ? updatedEnemy : boss;
-
-  const updatedGameState: GameState = {
-    ...gameState,
-    player_ship: updatedPlayer,
-    stage_enemy_ships: updatedEnemies,
-    stage_boss_ship: updatedBoss,
-  };
-
-  return [updatedGameState, metaState, defeatedEnemy];
-}
+import type { GameState } from '../../state/GameState';
+import type { GameMetaState } from '../../state/MetaGameState';
+import type { PlayerShipState } from '../../state/Ships/PlayerShipState';
+import type { EnemyShipState } from '../../state/Ships/EnemyShipState';
 
 function findNextEnemy(
   enemies: EnemyShipState[],
   boss: EnemyShipState | null
 ): EnemyShipState | null {
-  const next = enemies.find(e => e.status === 'alive');
-  if (next) return next;
+  const aliveEnemy = enemies.find((e) => e.status === 'alive');
+  if (aliveEnemy) return aliveEnemy;
   if (boss && boss.status === 'alive') return boss;
   return null;
 }
 
-function applyCombatRound(
+/**
+ * Applies one combat round between the player and the next alive enemy (or boss).
+ */
+export function runCombatStep(
+  gameState: GameState,
+  metaState: GameMetaState
+): [GameState, GameMetaState, EnemyShipState | undefined] {
+  const player = gameState.player_ship;
+  const enemies = gameState.stage_enemy_ships;
+  const boss = gameState.stage_boss_ship;
+
+  const nextEnemy = findNextEnemy(enemies, boss);
+  if (!nextEnemy) return [gameState, metaState, undefined];
+
+  const [newPlayer, updatedEnemy] = runCombatRoundBetween(player, nextEnemy);
+
+  const defeated =
+    updatedEnemy.currentHp <= 0 && updatedEnemy.status === 'alive'
+      ? { ...updatedEnemy, status: 'dead' as const }
+      : undefined;
+
+  const trulyUpdatedEnemy = defeated ?? updatedEnemy;
+
+  const updatedEnemies = enemies.map(e =>
+    e === nextEnemy ? trulyUpdatedEnemy : e
+  );
+  const updatedBoss = boss === nextEnemy ? trulyUpdatedEnemy : boss;
+
+  return [
+    {
+      ...gameState,
+      player_ship: newPlayer,
+      stage_enemy_ships: updatedEnemies,
+      stage_boss_ship: updatedBoss,
+    },
+    metaState,
+    defeated,
+  ];
+}
+
+export function runCombatRoundBetween(
   player: PlayerShipState,
   enemy: EnemyShipState
-): [PlayerShipState, EnemyShipState, EnemyShipState | undefined] {
-  const playerDamage = Math.max(player.attack - enemy.defense, 0);
-  const enemyDamage = Math.max(enemy.attack - player.defense, 0);
+): [PlayerShipState, EnemyShipState] {
+  const playerAttrs = computeEffectiveAttributes(player);
+  const enemyAttrs = computeEffectiveAttributes(enemy);
 
-  const newEnemyHp = Math.max(enemy.hp - playerDamage, 0);
-  const enemyIsDead = newEnemyHp === 0;
+  // Le joueur attaque l'ennemi
+  const [enemyAfterAttack, , ] = processWeaponRound(player, playerAttrs, enemy, enemyAttrs);
 
-  const updatedPlayer = { ...player, hp: Math.max(player.hp - enemyDamage, 0) };
-  const updatedEnemy: EnemyShipState = {
-    ...enemy,
-    hp: newEnemyHp,
-    status: enemyIsDead ? 'dead' : enemy.status,
+  // L'ennemi attaque le joueur 
+  const [playerAfterAttack, , ] = processWeaponRound(enemy, enemyAttrs, player, playerAttrs);
+
+  const newPlayer: PlayerShipState = {
+    ...player,
+    ...playerAfterAttack,
   };
 
-  const defeatedEnemy = enemyIsDead ? updatedEnemy : undefined;
+  const newEnemy: EnemyShipState = {
+    ...enemy,
+    ...enemyAfterAttack,
+  };
 
-  return [updatedPlayer, updatedEnemy, defeatedEnemy];
+  return [newPlayer, newEnemy];
 }

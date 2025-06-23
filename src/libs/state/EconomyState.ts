@@ -2,6 +2,7 @@ export type EconomyState = {
     credits: number;
     scrap: number;
     income: number;
+    bounty_bonus: number;
     ecoCost: number;
     attackCost: number;
     repairCost: number;
@@ -13,6 +14,7 @@ export const initEconomyState = (): EconomyState => ({
     credits: 1000,
     scrap: 0,
     income: 0,
+    bounty_bonus: 0,
     ecoCost: 10,
     attackCost: 1,
     repairCost: 1,

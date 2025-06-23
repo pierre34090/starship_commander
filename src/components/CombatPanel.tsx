@@ -3,6 +3,7 @@
 import React, { useContext } from 'react';
 import { GameContext } from '../contexts/GameContext';
 import { resolveCombatStep, resolveSkipEnemy } from '../libs/logic/combat/combatController';
+import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
 
 export default function CombatPanel() {
   const context = useContext(GameContext);
@@ -37,24 +38,31 @@ export default function CombatPanel() {
     <div className="panel">
       <h2>Enemy</h2>
 
-      {nextEnemy ? (
-        <>
-          <img src={nextEnemy.sprite} alt={nextEnemy.name} className="enemy-sprite" />
-          <p><strong>{nextEnemy.name}</strong></p>
-          <p><strong>HP:</strong> {nextEnemy.hp} / {nextEnemy.maxHp}</p>
-          <p><strong>Attack:</strong> {nextEnemy.attack}</p>
-          <p><strong>Defense:</strong> {nextEnemy.defense}</p>
+      {nextEnemy ? (() => {
+        const attrs = computeEffectiveAttributes(nextEnemy);
 
-          <div style={{ marginTop: '0.5rem' }}>
-            <button onClick={handleFight} disabled={isGameOver}>Combattre</button>
-            {!isBoss && (
-              <button onClick={handleSkip} style={{ marginLeft: '0.5rem' }} disabled={isGameOver}>
-                Skip
-              </button>
-            )}
-          </div>
-        </>
-      ) : (
+        return (
+          <>
+            <img src={nextEnemy.sprite} alt={nextEnemy.name} className="enemy-sprite" />
+            <p><strong>{nextEnemy.name}</strong></p>
+            <p><strong>HP:</strong> {nextEnemy.currentHp} / {attrs.maxHp}</p>
+            <p><strong>Shield:</strong> {nextEnemy.currentShield} / {attrs.maxShield}</p>
+            <p><strong>Armor:</strong> {nextEnemy.currentArmor} / {attrs.maxArmor}</p>
+            <p><strong>Damage:</strong> {attrs.globalDamage}</p>
+            <p><strong>Precision:</strong> {Math.round(attrs.precision * 100)}%</p>
+            <p><strong>Evasion:</strong> {Math.round(attrs.evasion * 100)}%</p>
+
+            <div style={{ marginTop: '0.5rem' }}>
+              <button onClick={handleFight} disabled={isGameOver}>Combattre</button>
+              {!isBoss && (
+                <button onClick={handleSkip} style={{ marginLeft: '0.5rem' }} disabled={isGameOver}>
+                  Skip
+                </button>
+              )}
+            </div>
+          </>
+        );
+      })() : (
         <p>Aucun ennemi actif</p>
       )}
     </div>

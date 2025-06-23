@@ -1,6 +1,6 @@
-//src/libs/state/Ships/PlayerShipState.ts
+// src/libs/state/Ships/PlayerShipState.ts
 
-import { ShipState } from './ShipState';
+import type { ShipState } from './ShipState';
 
 export type PlayerShipState = ShipState & {
   xp: number;
@@ -11,11 +11,19 @@ export const initPlayerShipState = (): PlayerShipState => ({
   name: '',
   description: '',
   sprite: '',
-  hp: 0,
-  maxHp: 0,
-  attack: 0,
-  defense: 0,
+  baseStats: {
+    baseHp: 0,
+    baseShield: 0,
+    baseArmor: 0,
+    baseGlobalDamage: 0,
+    basePrecision: 0,
+    baseEvasion: 0,
+  },
+  currentHp: 0,
+  currentShield: 0,
+  currentArmor: 0,
   weapons: [],
+  modules: [],
   xp: 0,
-  level: 0,
+  level: 1,
 });

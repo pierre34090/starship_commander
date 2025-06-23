@@ -179,7 +179,3 @@ button:disabled {
 }
 
 
-.message.info { color: #000; }
-.message.error { color: red; }
-.message.success { color: green; }
-.message.warning { color: orange; }
