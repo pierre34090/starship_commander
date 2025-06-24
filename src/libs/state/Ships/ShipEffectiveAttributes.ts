@@ -1,4 +1,4 @@
-// src/libs/state/Ships/ShipEffectiveAttributes.ts
+import type { DamageType, ElementalEffectType } from '../../logic/combat/DamageType';
 
 export type ShipEffectiveAttributes = {
   maxHp: number;
@@ -11,7 +11,6 @@ export type ShipEffectiveAttributes = {
   precision: number;
   evasion: number;
 
-
   maxEnergy: number;
 
   regenAmmo: number;
@@ -19,10 +18,8 @@ export type ShipEffectiveAttributes = {
 
   elementalEffectProbability: number;
 
-  damageByType: {
-    normal: number;
-    explosive: number;
-    ion: number;
-    corrosive: number;
-  };
+  damageByType: Record<DamageType, number>;
+
+  elementalDamage: Record<ElementalEffectType, number>;
+  elementalEffectDuration: Record<ElementalEffectType, number>;
 };

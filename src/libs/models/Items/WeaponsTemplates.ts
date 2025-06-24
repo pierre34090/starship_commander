@@ -2,7 +2,7 @@
 
 import type { WeaponState } from '../../state/Items/WeaponState';
 
-export const laserBlaster: WeaponState = {
+export const laserBlaster: Omit<WeaponState, 'id'> = {
   name: 'Laser Blaster',
   description: 'A standard-issue laser weapon. Reliable and precise.',
   sprite: 'sprites/weapons/laser_blaster.png',
@@ -17,22 +17,22 @@ export const laserBlaster: WeaponState = {
   elementalEffectProbability: 0.0,
 };
 
-export const plasmaBomb: WeaponState = {
+export const plasmaBomb: Omit<WeaponState, 'id'> = {
   name: 'Plasma Bomb',
   description: 'Fires a slow but powerful explosive charge. Deals area damage.',
   sprite: 'sprites/weapons/laser_blaster.png',
   price: 250,
-  isActive: false,
+  isActive: true,
   damage: 12,
   cooldown: 3,
   cooldownRemaining: 0,
   type: 'explosive',
   ammoConsumption: 2,
   energyConsumption: 4,
-  elementalEffectProbability: 0.3,
+  elementalEffectProbability: 0.9,
 };
 
-export const ionPulse: WeaponState = {
+export const ionPulse: Omit<WeaponState, 'id'> = {
   name: 'Ion Pulse',
   description: 'Disrupts enemy systems without causing hull damage.',
   sprite: 'sprites/weapons/laser_blaster.png',
@@ -47,7 +47,7 @@ export const ionPulse: WeaponState = {
   elementalEffectProbability: 0.6,
 };
 
-export const acidSprayer: WeaponState = {
+export const acidSprayer: Omit<WeaponState, 'id'> = {
   name: 'Acid Sprayer',
   description: 'Sprays corrosive acid, slowly damaging enemy hull over time.',
   sprite: 'sprites/weapons/laser_blaster.png',

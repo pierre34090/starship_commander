@@ -1,8 +1,9 @@
 // src/libs/state/GameState.ts
 
-import type { EconomyState } from './EconomyState'
-import type { EnemyShipState } from './Ships/EnemyShipState'
-import type { PlayerShipState } from './Ships/PlayerShipState'
+import type { EconomyState } from './EconomyState';
+import type { EnemyShipState } from './Ships/EnemyShipState';
+import type { PlayerShipState } from './Ships/PlayerShipState';
+import type { TargetingPriority } from './Ships/ShipSystems';
 
 import { initEconomyState } from './EconomyState';
 import { generateEnemiesForStage } from '../models/Ships/EnemyFactory';
@@ -13,6 +14,7 @@ export type GameState = {
   economy: EconomyState;
   stage_enemy_ships: EnemyShipState[];
   stage_boss_ship: EnemyShipState | null;
+  targetingPriority: TargetingPriority;
 };
 
 export const initGameState = (
@@ -26,5 +28,6 @@ export const initGameState = (
     economy: initEconomyState(),
     stage_enemy_ships: enemies,
     stage_boss_ship: boss,
+    targetingPriority: null,
   };
 };

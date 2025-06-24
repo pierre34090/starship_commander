@@ -36,7 +36,7 @@ export function repairPlayer(
   playerShip: PlayerShipState
 ): [EconomyState, PlayerShipState] {
   // Cas 1 : HP déjà au max
-  if (playerShip.hp >= playerShip.maxHp) {
+  if (playerShip.ship.currentHp >= playerShip.ship.maxHp) {
     MessageBus.send({
       type: 'info',
       text: 'Your ship is already at full health.',

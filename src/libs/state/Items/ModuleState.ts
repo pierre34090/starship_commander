@@ -1,5 +1,7 @@
 // src/libs/state/Items/ModuleState.ts
 
+import type { BaseModuleBonuses } from './ModuleBonuses';
+
 export type ModuleState = {
   name: string;
   description: string;
@@ -9,52 +11,7 @@ export type ModuleState = {
   isActive: boolean;
   energyConsumption: number;
 
-  // Combat bonuses
-
-  evasionFlat?: number;
-  evasionMult?: number;
-
-  globalDamageFlat?: number;
-  globalDamageMult?: number;
-
-  hpFlat?: number;
-  hpMult?: number;
-
-  maxShieldFlat?: number;
-  maxShieldMult?: number;
-
-  regenShieldFlat?: number;
-  regenShieldMult?: number;
-
-  maxEnergyFlat?: number;
-  maxEnergyMult?: number;
-
-  regenAmmoFlat?: number;
-  regenAmmoMult?: number;
-
-  maxAmmoFlat?: number;
-  maxAmmoMult?: number;
-
-  armorFlat?: number;
-  armorMult?: number;
-
-  precisionFlat?: number;
-  precisionMult?: number;
-
-  elementalEffectProbabilityFlat?: number;
-  elementalEffectProbabilityMult?: number;
-
-  normalDamageFlat?: number;
-  normalDamageMult?: number;
-
-  explosiveDamageFlat?: number;
-  explosiveDamageMult?: number;
-
-  ionDamageFlat?: number;
-  ionDamageMult?: number;
-
-  corrosiveDamageFlat?: number;
-  corrosiveDamageMult?: number;
+  bonuses?: BaseModuleBonuses;
 };
 
 export const initModuleState = (): ModuleState => ({

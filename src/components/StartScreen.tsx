@@ -1,9 +1,8 @@
-// src/components/StartScreen.tsx
-
 import { useState } from 'react';
 import type { FC } from 'react';
 import type { PlayerShipState } from '../libs/state/Ships/PlayerShipState';
 import { allPlayerShips } from '../libs/models/Ships/PlayerShipsTemplates';
+import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
 
 interface StartScreenProps {
   onStartGame: (playerName: string, ship: PlayerShipState) => void;
@@ -15,7 +14,6 @@ const StartScreen: FC<StartScreenProps> = ({ onStartGame }) => {
 
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-
       <div style={{ marginBottom: '1rem' }}>
         <input
           type="text"
@@ -25,29 +23,36 @@ const StartScreen: FC<StartScreenProps> = ({ onStartGame }) => {
           style={{ padding: '0.5rem', fontSize: '1rem' }}
         />
       </div>
+
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-        {allPlayerShips.map((ship, index) => (
-          <div
-            key={index}
-            onClick={() => setSelectedShip(ship)}
-            style={{
-              border: ship === selectedShip ? '3px solid #4caf50' : '1px solid #ccc',
-              borderRadius: '8px',
-              padding: '1rem',
-              cursor: 'pointer',
-              width: '200px',
-              textAlign: 'center',
-              backgroundColor: '#f9f9f9',
-            }}
-          >
-            <img src={ship.sprite} alt={ship.name} style={{ width: '100px' }} />
-            <h3>{ship.name}</h3>
-            <p>{ship.description}</p>
-            <p>HP: {ship.hp}</p>
-            <p>Attack: {ship.attack}</p>
-            <p>Defense: {ship.defense}</p>
-          </div>
-        ))}
+        {allPlayerShips.map((ship, index) => {
+          const s = ship.ship;
+          const attrs = computeEffectiveAttributes(s);
+
+          return (
+            <div
+              key={index}
+              onClick={() => setSelectedShip(ship)}
+              style={{
+                border: ship === selectedShip ? '3px solid #4caf50' : '1px solid #ccc',
+                borderRadius: '8px',
+                padding: '1rem',
+                cursor: 'pointer',
+                width: '200px',
+                textAlign: 'center',
+                backgroundColor: '#f9f9f9',
+              }}
+            >
+              <img src={s.sprite} alt={s.name} style={{ width: '100px' }} />
+              <h3>{s.name}</h3>
+              <p>{s.description}</p>
+              <p>HP: {attrs.maxHp}</p>
+              <p>Shield: {attrs.maxShield}</p>
+              <p>Armor: {attrs.maxArmor}</p>
+              <p>Damage: {attrs.globalDamage}</p>
+            </div>
+          );
+        })}
       </div>
 
       <div style={{ marginTop: '2rem' }}>

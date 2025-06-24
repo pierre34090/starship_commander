@@ -6,6 +6,9 @@ import { computeEffectiveAttributes } from './ShipLogic';
 import { WeaponState } from '../Items/WeaponState';
 import { ModuleState } from '../Items/ModuleState';
 
+import type { Subsystems } from './ShipSystems';
+import type { ElementalEffect } from '../../logic/combat/DamageType'; ;
+
 export type ShipState = {
   name: string;
   description: string;
@@ -17,8 +20,13 @@ export type ShipState = {
   currentShield: number;
   currentArmor: number;
 
+  currentAmmo: number;
+
   weapons: WeaponState[];
   modules: ModuleState[];
+  subsystems: Subsystems;
+
+  statusEffects: ElementalEffect[];
 };
 
 export const initShipState = (): ShipState => ({
@@ -29,15 +37,24 @@ export const initShipState = (): ShipState => ({
     baseHp: 0,
     baseShield: 0,
     baseArmor: 0,
-    baseGlobalDamageBonus: 0,
+    baseGlobalDamage: 0,
     basePrecision: 0,
     baseEvasion: 0,
   },
   currentHp: 0,
   currentShield: 0,
   currentArmor: 0,
+  currentAmmo: 0,
   weapons: [],
   modules: [],
+  statusEffects: [],
+  subsystems: {
+    shields:   { currentHp: 100, maxHp: 100, isDisabled: false },
+    weapons:   { currentHp: 100, maxHp: 100, isDisabled: false },
+    engines:   { currentHp: 100, maxHp: 100, isDisabled: false },
+    targeting: { currentHp: 100, maxHp: 100, isDisabled: false },
+    hull:      { currentHp: 9999, maxHp: 9999, isDisabled: false }, // placeholder, jamais désactivé
+  },
 });
 
 // --- Computed Wrapper ---

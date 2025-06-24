@@ -1,8 +1,6 @@
-// src/components/CombatPanel.tsx
-
 import React, { useContext } from 'react';
 import { GameContext } from '../contexts/GameContext';
-import { resolveCombatStep, resolveSkipEnemy } from '../libs/logic/combat/combatController';
+import { resolveCombatStep, resolveSkipEnemy } from '../libs/logic/combat/CombatOrchestrator';
 import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
 
 export default function CombatPanel() {
@@ -39,15 +37,16 @@ export default function CombatPanel() {
       <h2>Enemy</h2>
 
       {nextEnemy ? (() => {
-        const attrs = computeEffectiveAttributes(nextEnemy);
+        const ship = nextEnemy.ship;
+        const attrs = computeEffectiveAttributes(ship);
 
         return (
           <>
-            <img src={nextEnemy.sprite} alt={nextEnemy.name} className="enemy-sprite" />
-            <p><strong>{nextEnemy.name}</strong></p>
-            <p><strong>HP:</strong> {nextEnemy.currentHp} / {attrs.maxHp}</p>
-            <p><strong>Shield:</strong> {nextEnemy.currentShield} / {attrs.maxShield}</p>
-            <p><strong>Armor:</strong> {nextEnemy.currentArmor} / {attrs.maxArmor}</p>
+            <img src={ship.sprite} alt={ship.name} className="enemy-sprite" />
+            <p><strong>{ship.name}</strong></p>
+            <p><strong>HP:</strong> {ship.currentHp} / {attrs.maxHp}</p>
+            <p><strong>Shield:</strong> {ship.currentShield} / {attrs.maxShield}</p>
+            <p><strong>Armor:</strong> {ship.currentArmor} / {attrs.maxArmor}</p>
             <p><strong>Damage:</strong> {attrs.globalDamage}</p>
             <p><strong>Precision:</strong> {Math.round(attrs.precision * 100)}%</p>
             <p><strong>Evasion:</strong> {Math.round(attrs.evasion * 100)}%</p>

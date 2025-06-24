@@ -1,6 +1,9 @@
 // src/libs/state/Items/WeaponState.ts
 
+import type { DamageType } from '../../logic/combat/DamageType';
+
 export type WeaponState = {
+  id: string;
   name: string;
   description: string;
   sprite: string;
@@ -12,7 +15,7 @@ export type WeaponState = {
   cooldown: number;              // cooldown duration (in rounds)
   cooldownRemaining: number;    // turns left before this weapon can fire
 
-  type: 'normal' | 'explosive' | 'ion' | 'corrosive';
+  type: DamageType;
   ammoConsumption: number;
   energyConsumption: number;
   elementalEffectProbability: number;

@@ -1,7 +1,8 @@
 // src/libs/logic/Combat/DamageMultipliers.ts
 
+import type { DamageType } from './DamageType';
+
 export type DamageTarget = 'shield' | 'armor' | 'hp';
-export type DamageType = 'normal' | 'ion' | 'corrosive' | 'explosive';
 
 /**
  * Returns how much damage of a given type affects a given target.

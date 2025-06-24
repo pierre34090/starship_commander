@@ -1,58 +1,95 @@
 // src/libs/logic/Ships/ShipLogic.ts
+import { DAMAGE_TYPES, ELEMENTAL_TYPES } from '../../logic/combat/DamageType';
 
 import { ShipState } from '../../state/Ships/ShipState';
 import { ShipEffectiveAttributes } from '../../state/Ships/ShipEffectiveAttributes';
 import { ModuleState } from '../../state/Items/ModuleState';
+import type { BaseModuleBonuses, FlatAndMult } from '../Items/ModuleBonuses';
 
 // --- Effective computation ---
-
-import type { ShipState } from './ShipState';
-import type { ShipEffectiveAttributes } from './ShipEffectiveAttributes';
-import type { ModuleState } from '../Items/ModuleState';
 
 export function computeEffectiveAttributes(ship: ShipState): ShipEffectiveAttributes {
   const base = ship.baseStats;
   const activeModules = ship.modules.filter((mod) => mod.isActive);
 
-  const sum = (key: keyof ModuleState): number =>
-    activeModules.reduce(
-      (acc, mod) => acc + (typeof mod[key] === 'number' ? (mod[key] as number) : 0),
-      0
-    );
+  // --- Helpers ---
 
-  const flat = (suffix: string): number =>
-    sum(`${suffix}Flat` as keyof ModuleState);
+  // Pour les bonus sans base (ex: regenShield, maxAmmo...)
+  function scaledBonus(
+    extractor: (b: BaseModuleBonuses) => FlatAndMult | undefined
+  ): number {
+    let flat = 0;
+    let mult = 0;
+    for (const mod of activeModules) {
+      const b = mod.bonuses && extractor(mod.bonuses);
+      flat += b?.flat ?? 0;
+      mult += b?.mult ?? 0;
+    }
+    return flat * (1 + mult);
+  }
 
-  const mult = (suffix: string): number =>
-    sum(`${suffix}Mult` as keyof ModuleState);
+  // Pour les bonus avec base stat (ex: baseHp, basePrecision...)
+  function scaledBonusWithBase(
+    extractor: (b: BaseModuleBonuses) => FlatAndMult | undefined,
+    baseValue: number
+  ): number {
+    let flat = 0;
+    let mult = 0;
+    for (const mod of activeModules) {
+      const b = mod.bonuses && extractor(mod.bonuses);
+      flat += b?.flat ?? 0;
+      mult += b?.mult ?? 0;
+    }
+    return (baseValue + flat) * (1 + mult);
+  }
+
+  function scaledBonusByType<T extends string>(
+    extractor: (b: BaseModuleBonuses) => Record<T, FlatAndMult> | undefined,
+    types: T[]
+  ): Record<T, number> {
+    return Object.fromEntries(
+      types.map((type) => {
+        let flat = 0;
+        let mult = 0;
+        for (const mod of activeModules) {
+          const bonuses = mod.bonuses;
+          const record = bonuses && extractor(bonuses);
+          const entry = record?.[type];
+          flat += entry?.flat ?? 0;
+          mult += entry?.mult ?? 0;
+        }
+        return [type, flat * (1 + mult)];
+      })
+    ) as Record<T, number>;
+  }
+
+  // --- Computation ---
 
   return {
-    maxHp: (base.baseHp + flat('hp')) * (1 + mult('hp')),
-    maxShield: (base.baseShield + flat('maxShield')) * (1 + mult('maxShield')),
-    maxArmor: (base.baseArmor + flat('armor')) * (1 + mult('armor')),
+    maxHp: scaledBonusWithBase((b) => b.hp, base.baseHp),
+    maxShield: scaledBonusWithBase((b) => b.maxShield, base.baseShield),
+    maxArmor: scaledBonusWithBase((b) => b.armor, base.baseArmor),
 
-    regenShield: flat('regenShield') * (1 + mult('regenShield')),
+    regenShield: scaledBonus((b) => b.regenShield),
 
-    globalDamage: (base.baseGlobalDamage + flat('globalDamage')) * (1 + mult('globalDamage')),
-    precision: (base.basePrecision + flat('precision')) * (1 + mult('precision')),
-    evasion: (base.baseEvasion + flat('evasion')) * (1 + mult('evasion')),
+    globalDamage: scaledBonusWithBase((b) => b.globalDamage, base.baseGlobalDamage),
+    precision: scaledBonusWithBase((b) => b.precision, base.basePrecision),
+    evasion: scaledBonusWithBase((b) => b.evasion, base.baseEvasion),
 
-    maxEnergy: flat('maxEnergy') * (1 + mult('maxEnergy')),
+    maxEnergy: scaledBonus((b) => b.maxEnergy),
 
-    regenAmmo: flat('regenAmmo') * (1 + mult('regenAmmo')),
-    maxAmmo: flat('maxAmmo') * (1 + mult('maxAmmo')),
+    regenAmmo: scaledBonus((b) => b.regenAmmo),
+    maxAmmo: scaledBonus((b) => b.maxAmmo),
 
-    elementalEffectProbability:
-      flat('elementalEffectProbability') * (1 + mult('elementalEffectProbability')),
+    elementalEffectProbability: scaledBonus((b) => b.elementalEffectProbability),
 
-    damageByType: {
-      normal: flat('normalDamage') + 100 * mult('normalDamage'),
-      explosive: flat('explosiveDamage') + 100 * mult('explosiveDamage'),
-      ion: flat('ionDamage') + 100 * mult('ionDamage'),
-      corrosive: flat('corrosiveDamage') + 100 * mult('corrosiveDamage'),
-    },
+    damageByType: scaledBonusByType((b) => b.damageByType, DAMAGE_TYPES),
+    elementalDamage: scaledBonusByType((b) => b.elementalDamage, ELEMENTAL_TYPES),
+    elementalEffectDuration: scaledBonusByType((b) => b.elementalEffectDuration, ELEMENTAL_TYPES),
   };
 }
+
+
 
 
 // --- Ship wrapper ---

@@ -1,14 +1,14 @@
-// src/libs/logic/Combat/CombatRound.ts
+// src/libs/logic/Combat/RoundManager.ts
 
 import { computeEffectiveAttributes } from '../../state/Ships/ShipLogic';
-import { processWeaponRound } from './CombatEngine';
+import { processWeaponRound } from './AttackProcessor';
 
 import type { GameState } from '../../state/GameState';
 import type { GameMetaState } from '../../state/MetaGameState';
 import type { PlayerShipState } from '../../state/Ships/PlayerShipState';
 import type { EnemyShipState } from '../../state/Ships/EnemyShipState';
 
-function findNextEnemy(
+export function findNextEnemy(
   enemies: EnemyShipState[],
   boss: EnemyShipState | null
 ): EnemyShipState | null {
@@ -21,7 +21,7 @@ function findNextEnemy(
 /**
  * Applies one combat round between the player and the next alive enemy (or boss).
  */
-export function runCombatStep(
+export function runCombatRound(
   gameState: GameState,
   metaState: GameMetaState
 ): [GameState, GameMetaState, EnemyShipState | undefined] {
@@ -35,7 +35,7 @@ export function runCombatStep(
   const [newPlayer, updatedEnemy] = runCombatRoundBetween(player, nextEnemy);
 
   const defeated =
-    updatedEnemy.currentHp <= 0 && updatedEnemy.status === 'alive'
+    updatedEnemy.ship.currentHp <= 0 && updatedEnemy.status === 'alive'
       ? { ...updatedEnemy, status: 'dead' as const }
       : undefined;
 
@@ -62,23 +62,23 @@ export function runCombatRoundBetween(
   player: PlayerShipState,
   enemy: EnemyShipState
 ): [PlayerShipState, EnemyShipState] {
-  const playerAttrs = computeEffectiveAttributes(player);
-  const enemyAttrs = computeEffectiveAttributes(enemy);
+  const playerAttrs = computeEffectiveAttributes(player.ship);
+  const enemyAttrs = computeEffectiveAttributes(enemy.ship);
 
   // Le joueur attaque l'ennemi
-  const [enemyAfterAttack, , ] = processWeaponRound(player, playerAttrs, enemy, enemyAttrs);
+  const [enemyAfterAttack, , ] = processWeaponRound(player.ship, playerAttrs, enemy.ship, enemyAttrs);
 
-  // L'ennemi attaque le joueur 
-  const [playerAfterAttack, , ] = processWeaponRound(enemy, enemyAttrs, player, playerAttrs);
+  // L'ennemi attaque le joueur
+  const [playerAfterAttack, , ] = processWeaponRound(enemy.ship, enemyAttrs, player.ship, playerAttrs);
 
   const newPlayer: PlayerShipState = {
     ...player,
-    ...playerAfterAttack,
+    ship: { ...playerAfterAttack }, // conserve xp, level
   };
 
   const newEnemy: EnemyShipState = {
     ...enemy,
-    ...enemyAfterAttack,
+    ship: { ...enemyAfterAttack }, // conserve status, bounty, etc.
   };
 
   return [newPlayer, newEnemy];

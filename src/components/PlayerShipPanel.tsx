@@ -1,4 +1,5 @@
 // src/components/PlayerShipPanel.tsx
+
 import type { PlayerShipState } from '../libs/state/Ships/PlayerShipState';
 import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
 
@@ -7,14 +8,16 @@ interface ShipPanelProps {
 }
 
 const PlayerShipPanel: React.FC<ShipPanelProps> = ({ ship }) => {
+  const s = ship.ship;
+  const attrs = computeEffectiveAttributes(s);
+
   return (
     <div className="panel">
-      <h2>{ship.name}</h2>
-      <img src={ship.sprite} alt={ship.name} className="your_ship-sprite" />
-      <p><strong>HP:</strong> {ship.currentHp} / {computeEffectiveAttributes(ship).maxHp}</p>
-      <p><strong>Attack:</strong> Don't exist</p>
-      <p><strong>Shield:</strong> {ship.currentShield} / {computeEffectiveAttributes(ship).maxShield}</p>
-      <p><strong>Armor:</strong> {ship.currentArmor} / {computeEffectiveAttributes(ship).maxArmor}</p>
+      <h2>{s.name}</h2>
+      <img src={s.sprite} alt={s.name} className="your_ship-sprite" />
+      <p><strong>HP:</strong> {s.currentHp} / {attrs.maxHp}</p>
+      <p><strong>Shield:</strong> {s.currentShield} / {attrs.maxShield}</p>
+      <p><strong>Armor:</strong> {s.currentArmor} / {attrs.maxArmor}</p>
       <p><strong>XP:</strong> {ship.xp}</p>
     </div>
   );
