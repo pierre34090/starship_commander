@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import type { FC } from 'react';
-import type { PlayerShipState } from '../libs/state/Ships/PlayerShipState';
+import type { ShipState } from '../libs/state/Ships/ShipState';
 import { allPlayerShips } from '../libs/models/Ships/PlayerShipsTemplates';
 import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
 
 interface StartScreenProps {
-  onStartGame: (playerName: string, ship: PlayerShipState) => void;
+  onStartGame: (playerName: string, ship: ShipState) => void;
 }
 
 const StartScreen: FC<StartScreenProps> = ({ onStartGame }) => {
   const [playerName, setPlayerName] = useState('');
-  const [selectedShip, setSelectedShip] = useState<PlayerShipState | null>(null);
+  const [selectedShip, setSelectedShip] = useState<ShipState | null>(null);
 
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
@@ -26,8 +26,7 @@ const StartScreen: FC<StartScreenProps> = ({ onStartGame }) => {
 
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         {allPlayerShips.map((ship, index) => {
-          const s = ship.ship;
-          const attrs = computeEffectiveAttributes(s);
+          const attrs = computeEffectiveAttributes(ship);
 
           return (
             <div
@@ -43,9 +42,9 @@ const StartScreen: FC<StartScreenProps> = ({ onStartGame }) => {
                 backgroundColor: '#f9f9f9',
               }}
             >
-              <img src={s.sprite} alt={s.name} style={{ width: '100px' }} />
-              <h3>{s.name}</h3>
-              <p>{s.description}</p>
+              <img src={ship.sprite} alt={ship.name} style={{ width: '100px' }} />
+              <h3>{ship.name}</h3>
+              <p>{ship.description}</p>
               <p>HP: {attrs.maxHp}</p>
               <p>Shield: {attrs.maxShield}</p>
               <p>Armor: {attrs.maxArmor}</p>

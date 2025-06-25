@@ -92,6 +92,8 @@ export function applyFlatDamageToShip(
   const currentArmor = ship.currentArmor ?? 0;
   const currentShield = ship.currentShield ?? 0;
 
+  
+
   // Step 1: apply armor reduction
   const {
     damageAfterArmor,

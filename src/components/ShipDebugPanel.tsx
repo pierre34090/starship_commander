@@ -1,18 +1,22 @@
+// src/components/ShipDebugPanel.tsx
+
 import React from 'react';
 import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
-import type { PlayerShipState } from '../libs/state/Ships/PlayerShipState';
+import type { ShipState } from '../libs/state/Ships/ShipState';
 import type { WeaponState } from '../libs/state/Items/WeaponState';
 import type { ModuleState } from '../libs/state/Items/ModuleState';
 
-export const PlayerDebugPanel: React.FC<{ player: PlayerShipState }> = ({ player }) => {
-  const ship = player.ship;
+export const ShipDebugPanel: React.FC<{ ship: ShipState }> = ({ ship }) => {
   const base = ship.baseStats;
   const attrs = computeEffectiveAttributes(ship);
 
   return (
     <div style={{ padding: 12, border: '1px solid #ccc', borderRadius: 8, backgroundColor: '#eef3ff', overflowY: 'auto', maxHeight: '80vh' }}>
-      <h3>Player Debug</h3>
+      <h3>Ship Debug</h3>
       <p><strong>{ship.name}</strong></p>
+      <p>Status: {ship.status}</p>
+      {ship.xp !== undefined && <p>XP: {ship.xp}</p>}
+      {ship.creditsBounty !== undefined && <p>Bounty: {ship.creditsBounty} credits</p>}
       <p>HP: {ship.currentHp}</p>
       <p>Shield: {ship.currentShield}</p>
       <p>Armor: {ship.currentArmor}</p>

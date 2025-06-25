@@ -2,87 +2,91 @@
 
 import { computeEffectiveAttributes } from '../../state/Ships/ShipLogic';
 import { processWeaponRound } from './AttackProcessor';
+import { applyElementalStatusEffects } from './ElementalEffectUtils';
+import { isShipDead } from '../../state/Ships/ShipLogic';
+import { handleStageProgression } from './StageManager';
+import { collectCombatReward } from './EndOfCombatUtils';
+import { MessageBus } from '../../../contexts/MessageContext';
 
 import type { GameState } from '../../state/GameState';
 import type { GameMetaState } from '../../state/MetaGameState';
-import type { PlayerShipState } from '../../state/Ships/PlayerShipState';
-import type { EnemyShipState } from '../../state/Ships/EnemyShipState';
+import type { ShipState } from '../../state/Ships/ShipState';
 
-export function findNextEnemy(
-  enemies: EnemyShipState[],
-  boss: EnemyShipState | null
-): EnemyShipState | null {
-  const aliveEnemy = enemies.find((e) => e.status === 'alive');
-  if (aliveEnemy) return aliveEnemy;
-  if (boss && boss.status === 'alive') return boss;
-  return null;
+/**
+ * Résout une étape complète de combat :
+ * - attaque joueur + réponse ennemi
+ * - effets élémentaires + regen
+ * - récompense si l'ennemi meurt
+ * - progression du stage si besoin
+ */
+export function runCombatStep(
+  gameState: GameState,
+  metaState: GameMetaState
+): [GameState, GameMetaState] {
+  const player = gameState.player_ship;
+  const enemies = gameState.stageEnemies;
+
+  const target = findNextEnemy(enemies);
+  if (!target) return [gameState, metaState]; // rien à faire
+
+  const attackerStats = computeEffectiveAttributes(player);
+  const defenderStats = computeEffectiveAttributes(target);
+
+  const [playerAfter1, ennemyAfter1] = processWeaponRound(player, attackerStats, target, defenderStats);
+  const [ennemyAfter2, playerAfter2] = processWeaponRound(ennemyAfter1, defenderStats, playerAfter1, attackerStats);
+
+  const finalPlayer = applyEffectsAndRegen(playerAfter2);
+  const finalEnemy = applyEffectsAndRegen(ennemyAfter2);
+
+  const defeated =
+    isShipDead(finalEnemy) && target.status === 'alive'
+      ? { ...finalEnemy, status: 'dead' as const }
+      : undefined;
+
+  const updatedEnemies = enemies.map((e) =>
+    e === target ? defeated ?? finalEnemy : e
+  );
+
+  const withCombat = {
+    ...gameState,
+    player_ship: finalPlayer,
+    stageEnemies: updatedEnemies,
+  };
+
+  const withRewards = defeated
+    ? collectCombatReward(withCombat, defeated)
+    : withCombat;
+
+  return handleStageProgression(withRewards, metaState);
+}
+
+function findNextEnemy(enemies: ShipState[]): ShipState | null {
+  return enemies.find((e) => e.status === 'alive') ?? null;
 }
 
 /**
- * Applies one combat round between the player and the next alive enemy (or boss).
+ * Applique les effets élémentaires, puis régénère le bouclier si le vaisseau est en vie.
  */
-export function runCombatRound(
-  gameState: GameState,
-  metaState: GameMetaState
-): [GameState, GameMetaState, EnemyShipState | undefined] {
-  const player = gameState.player_ship;
-  const enemies = gameState.stage_enemy_ships;
-  const boss = gameState.stage_boss_ship;
+export function applyEffectsAndRegen(ship: ShipState): ShipState {
+  if (ship.currentHp <= 0) return ship;
 
-  const nextEnemy = findNextEnemy(enemies, boss);
-  if (!nextEnemy) return [gameState, metaState, undefined];
-  
+  let updated = applyElementalStatusEffects(ship);
+  if (updated.currentHp <= 0) return updated;
 
-  const [newPlayer, updatedEnemy] = runCombatRoundBetween(player, nextEnemy);
+  const stats = computeEffectiveAttributes(updated);
+  const before = updated.currentShield ?? 0;
+  const after = Math.min(stats.maxShield, before + stats.regenShield);
+  const gained = after - before;
 
-  const defeated =
-    updatedEnemy.ship.currentHp <= 0 && updatedEnemy.status === 'alive'
-      ? { ...updatedEnemy, status: 'dead' as const }
-      : undefined;
+  if (gained > 0) {
+    MessageBus.send({
+      type: 'info',
+      text: `${ship.name} regenerates ${gained} shield.`,
+    });
+  }
 
-  const trulyUpdatedEnemy = defeated ?? updatedEnemy;
-
-  const updatedEnemies = enemies.map(e =>
-    e === nextEnemy ? trulyUpdatedEnemy : e
-  );
-  const updatedBoss = boss === nextEnemy ? trulyUpdatedEnemy : boss;
-
-  return [
-    {
-      ...gameState,
-      player_ship: newPlayer,
-      stage_enemy_ships: updatedEnemies,
-      stage_boss_ship: updatedBoss,
-    },
-    metaState,
-    defeated,
-  ];
-}
-
-export function runCombatRoundBetween(
-  player: PlayerShipState,
-  enemy: EnemyShipState
-): [PlayerShipState, EnemyShipState] {
-  const playerAttrs = computeEffectiveAttributes(player.ship);
-  const enemyAttrs = computeEffectiveAttributes(enemy.ship);
-
-  // Le joueur attaque l'ennemi
-  const [playerAfterAttackTmp, enemyAfterAttackTmp, ] =
-  processWeaponRound(player.ship, playerAttrs, enemy.ship, enemyAttrs);
-
-  // L'ennemi attaque le joueur
-  const [enemyAfterAttackFinal, playerAfterAttackFinal, ] =
-  processWeaponRound(enemyAfterAttackTmp, enemyAttrs, playerAfterAttackTmp, playerAttrs);
-
-  const newPlayer: PlayerShipState = {
-    ...player,
-    ship: { ...playerAfterAttackFinal },
+  return {
+    ...updated,
+    currentShield: after,
   };
-
-  const newEnemy: EnemyShipState = {
-    ...enemy,
-    ship: { ...enemyAfterAttackFinal }, 
-  };
-
-  return [newPlayer, newEnemy];
 }

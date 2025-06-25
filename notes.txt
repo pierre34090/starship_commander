@@ -1,3 +1,5 @@
+Faire une structure pour stocker les idées (ajouter en vrac tant que y'en a pas trop)
+
 - Pour lisser l'aleatoire des logue fait plus de tirage a la brotato. DIminue la frustration et augmente l'impact de la stratégie -> eviter le random pur
 Essayer le limiter la divergence: par exmeple mettre de l'entretient plus cher et des enemis plus fort si la perosnne est très riche
 Pour l'equilibrage on joue sur des facteur multiplicatif et additif, tout finira par etre reantable un jour et la progression conevrge facilement
@@ -5,9 +7,18 @@ mecanique de lissage de l'aleatoire: soit a pbase de point de destin comme dans 
 Donner la chance de gagner et le resultat moyen de chaque combatss
 
 
+mecanique d'equive, on rajoute du qte a la clair osbcur. ca fait le plaisir du lucky fight. 
+chaque type da'rme a son animation pour varier les type d'esquives. ca doit etre iplémentable en web 
+(opn reprend le truc a la clair obscur ou on sait aps trop quand ca va taper)
+ce serait cool de prendre des risques pour pouvoir taper l'enemis
+IL faut une boucle de gameplay  active avec de spause pour changer les tsuff ou en acheter.
+
+Au marchand t'achete les slots d'amres, de module (et peut etre sheild armure)
+chaque arme ou module du slot et de l'energy (FTL 100%)
+Et en gros le jouer va avoir plus d'arme et de module que ce qu'il peut equiper et il peut/doit donc aavoir des arme en stock qu'il utilise pas et qu'il garde pour scale plus tard
 
 
 
 
-
--Buidl greed marcchand: augmentation d'income cumulative tant que t'achetes rien a la boutique, mettre de la emcanique a la tft
+-mecanique d'interet sur la thune non dépensée à la tft
+-Buidl greed marcchand: augmentation d'income cumulative tant que t'achetes rien a la boutique

@@ -59,7 +59,7 @@ export function processWeaponRound(
   attackerStats: ShipEffectiveAttributes,
   defender: ShipState,
   defenderStats: ShipEffectiveAttributes
-): [ShipState, ShipState, WeaponState[]] {
+): [ShipState, ShipState] {
   const updatedWeapons: WeaponState[] = [];
   let updatedDefender = defender;
   let newAmmo = attacker.currentAmmo;
@@ -98,11 +98,12 @@ export function processWeaponRound(
   }
 
   const updatedAttacker = {
-      ...attacker,
-      currentAmmo: newAmmo,
-    };
+    ...attacker,
+    currentAmmo: newAmmo,
+    weapons: updatedWeapons,
+  };
 
     console.log('ammo left:', updatedAttacker.currentAmmo);
 
-  return [updatedAttacker, updatedDefender, updatedWeapons];
+  return [updatedAttacker, updatedDefender];
 }

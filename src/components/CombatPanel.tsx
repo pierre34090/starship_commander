@@ -1,6 +1,8 @@
+// src/components/CombatPanel.tsx
+
 import React, { useContext } from 'react';
 import { GameContext } from '../contexts/GameContext';
-import { resolveCombatStep, resolveSkipEnemy } from '../libs/logic/combat/CombatOrchestrator';
+import { runCombatStep } from '../libs/logic/combat/RoundManager';
 import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
 
 export default function CombatPanel() {
@@ -10,24 +12,12 @@ export default function CombatPanel() {
   const { gameState, setGameState, metaState, setMetaState } = context;
   if (!gameState || !metaState) return null;
 
-  const boss = gameState.stage_boss_ship;
-  const nextEnemy =
-    gameState.stage_enemy_ships.find(e => e.status === 'alive') ??
-    (boss?.status === 'alive' ? boss : null);
-
-  const isBoss = nextEnemy === boss;
+  const nextEnemy = gameState.stageEnemies.find(e => e.status === 'alive');
   const isGameOver = metaState.gameOver || metaState.gameWin;
 
   const handleFight = () => {
     if (isGameOver) return;
-    const [newState, newMeta] = resolveCombatStep(gameState, metaState);
-    setGameState(newState);
-    setMetaState(newMeta);
-  };
-
-  const handleSkip = () => {
-    if (isGameOver || !nextEnemy || isBoss) return;
-    const [newState, newMeta] = resolveSkipEnemy(gameState, metaState);
+    const [newState, newMeta] = runCombatStep(gameState, metaState);
     setGameState(newState);
     setMetaState(newMeta);
   };
@@ -37,7 +27,7 @@ export default function CombatPanel() {
       <h2>Enemy</h2>
 
       {nextEnemy ? (() => {
-        const ship = nextEnemy.ship;
+        const ship = nextEnemy;
         const attrs = computeEffectiveAttributes(ship);
 
         return (
@@ -53,11 +43,6 @@ export default function CombatPanel() {
 
             <div style={{ marginTop: '0.5rem' }}>
               <button onClick={handleFight} disabled={isGameOver}>Combattre</button>
-              {!isBoss && (
-                <button onClick={handleSkip} style={{ marginLeft: '0.5rem' }} disabled={isGameOver}>
-                  Skip
-                </button>
-              )}
             </div>
           </>
         );

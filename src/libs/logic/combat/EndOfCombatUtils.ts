@@ -11,17 +11,14 @@ import { MessageBus } from '../../../contexts/MessageContext';
  * - Full restore of shield and armor
  * - Passive ammo regeneration
  */
-function applyToShipEndOfCombat(ship: ShipState): ShipState {
+export function applyToShipEndOfCombat(ship: ShipState): ShipState {
   const effective = computeEffectiveAttributes(ship);
 
   const restoredShield = effective.maxShield;
   const restoredArmor = effective.maxArmor;
   const regenAmmo = effective.regenAmmo;
 
-  const newAmmo = Math.min(
-    ship.currentAmmo + regenAmmo,
-    effective.maxAmmo
-  );
+  const newAmmo = Math.min(ship.currentAmmo + regenAmmo, effective.maxAmmo);
 
   if (regenAmmo > 0) {
     MessageBus.send({
@@ -40,20 +37,36 @@ function applyToShipEndOfCombat(ship: ShipState): ShipState {
     currentShield: restoredShield,
     currentArmor: restoredArmor,
     currentAmmo: newAmmo,
+    statusEffects: [], // Clear all ongoing elemental effects
   };
 }
 
 /**
- * Applies end-of-combat effects to the full game state (player, enemies, boss).
+ * Applies combat rewards (XP and credits) and triggers post-combat regeneration.
  */
-export function applyEndOfCombatEffects(gameState: GameState): GameState {
-  const updatedPlayer = {
-    ...gameState.player_ship,
-    ship: applyToShipEndOfCombat(gameState.player_ship.ship),
-  };
+export function collectCombatReward(
+  state: GameState,
+  enemy: ShipState
+): GameState {
+  const moneyReward = enemy.creditsBounty ?? 0;
+  const xpReward = enemy.xpBounty ?? 0;
+  const incomeBonus = state.economy.income;
+  const totalCredits = moneyReward + incomeBonus;
+
+  MessageBus.send({
+    type: 'success',
+    text: `Defeated ${enemy.name}! +${xpReward} XP, +${totalCredits} credits.`,
+  });
 
   return {
-    ...gameState,
-    player_ship: updatedPlayer
+    ...state,
+    economy: {
+      ...state.economy,
+      credits: state.economy.credits + totalCredits,
+    },
+    player_ship: applyToShipEndOfCombat({
+      ...state.player_ship,
+      xp: (state.player_ship.xp ?? 0) + xpReward,
+    }),
   };
 }

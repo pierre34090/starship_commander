@@ -4,17 +4,22 @@ import type { GameState } from '../../state/GameState';
 import type { GameMetaState } from '../../state/MetaGameState';
 import { generateEnemiesForStage } from '../../models/Ships/EnemyFactory';
 import { MessageBus } from '../../../contexts/MessageContext';
-
 import { isShipDead } from '../../state/Ships/ShipLogic';
 
 const LAST_STAGE_INDEX = 2;
 
+/**
+ * Passe au stage suivant :
+ * - Génère une nouvelle liste d'ennemis (5 + boss)
+ * - Réinitialise les flags de fin
+ * - Met à jour le compteur de stage
+ */
 export function advanceStage(
   gameState: GameState,
   metaState: GameMetaState
 ): [GameState, GameMetaState] {
   const nextStage = metaState.currentStage + 1;
-  const { enemies, boss } = generateEnemiesForStage(nextStage);
+  const stageEnemies = generateEnemiesForStage(nextStage);
 
   MessageBus.send({
     type: 'success',
@@ -24,8 +29,7 @@ export function advanceStage(
   return [
     {
       ...gameState,
-      stage_enemy_ships: enemies,
-      stage_boss_ship: boss,
+      stageEnemies,
     },
     {
       ...metaState,
@@ -37,64 +41,41 @@ export function advanceStage(
 }
 
 /**
- * Synchronise les statuts des ennemis et du boss selon leur HP.
+ * Gère la progression logique d’un stage :
+ * - Met à jour les statuts des ennemis en fonction de leur HP
+ * - Détecte la mort du joueur → game over
+ * - Détecte la mort du boss (dernier ennemi) → passage au stage suivant ou victoire
  */
-export function syncStatusesWithHp(gameState: GameState): GameState {
-  return {
-    ...gameState,
-    stage_enemy_ships: gameState.stage_enemy_ships.map(enemy => ({
-      ...enemy,
-      status: enemy.ship.currentHp <= 0 ? 'dead' : enemy.status,
-    })),
-    stage_boss_ship: gameState.stage_boss_ship
-      ? {
-          ...gameState.stage_boss_ship,
-          status: gameState.stage_boss_ship.ship.currentHp <= 0 ? 'dead' : gameState.stage_boss_ship.status,
-        }
-      : null,
-  };
-}
-
-
-export function updateStageOutcome(
-  gameState: GameState,
-  metaState: GameMetaState
-): GameMetaState {
-  const player = gameState.player_ship;
-  const enemies = gameState.stage_enemy_ships;
-  const boss = gameState.stage_boss_ship;
-
-
-  if (isShipDead(player.ship)) return { ...metaState, gameOver: true };
-
-
-  const allEnemiesDead = enemies.every(e => e.status !== 'alive');
-  const bossDead = !boss || boss.status !== 'alive';
-
-  if (allEnemiesDead && bossDead) {
-    if (metaState.currentStage >= LAST_STAGE_INDEX) {
-      return { ...metaState, gameWin: true };
-    }
-  }
-
-  return metaState;
-}
-
-
 export function handleStageProgression(
   gameState: GameState,
   metaState: GameMetaState
 ): [GameState, GameMetaState] {
-  const syncedState = syncStatusesWithHp(gameState);
-  const updatedMeta = updateStageOutcome(syncedState, metaState);
+  // Mise à jour des statuts "alive"/"dead" en fonction des HP
+  const syncedEnemies = gameState.stageEnemies.map(ship => ({
+    ...ship,
+    status: isShipDead(ship) ? 'dead' : ship.status,
+  }));
 
-  const allEnemiesDead = syncedState.stage_enemy_ships.every(e => e.status === 'dead');
-  const bossDead = !syncedState.stage_boss_ship || syncedState.stage_boss_ship.status === 'dead';
-  const gameEnded = updatedMeta.gameOver || updatedMeta.gameWin;
+  const syncedState: GameState = {
+    ...gameState,
+    stageEnemies: syncedEnemies,
+  };
 
-  if (allEnemiesDead && bossDead && !gameEnded) {
-    return advanceStage(syncedState, updatedMeta);
+  // Fin du jeu si le joueur est mort
+  if (isShipDead(gameState.player_ship)) {
+    return [syncedState, { ...metaState, gameOver: true }];
   }
 
-  return [syncedState, updatedMeta];
+  // Si le boss (dernier ennemi) est mort, on avance
+  const boss = syncedEnemies.at(-1);
+  const bossDead = boss?.status === 'dead';
+
+  if (bossDead) {
+    if (metaState.currentStage >= LAST_STAGE_INDEX) {
+      return [syncedState, { ...metaState, gameWin: true }];
+    }
+    return advanceStage(syncedState, metaState);
+  }
+
+  return [syncedState, metaState];
 }

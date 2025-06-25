@@ -1,22 +1,25 @@
+// src/components/DisplayShipInfo.tsx
+
 import "../css/DisplayShipInfo.css";
 import React from 'react';
 import type { ShipState } from '../libs/state/Ships/ShipState';
 import { ELEMENTAL_TYPES, ElementalEffectType } from '../libs/logic/combat/DamageType';
+import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
 
 type DisplayShipInfoProps = {
   ship: ShipState;
 };
 
 export const DisplayShipInfo: React.FC<DisplayShipInfoProps> = ({ ship }) => {
-  // Calculs ratios (safe)
+  const effective = computeEffectiveAttributes(ship);
+
   const getRatio = (current: number, max?: number) =>
     max && max > 0 ? Math.min((current / max) * 100, 100) : 0;
 
-  const hpPercent = getRatio(ship.currentHp, ship.baseStats?.baseHp);
-  const shieldPercent = getRatio(ship.currentShield, ship.baseStats?.baseShield);
-  const armorPercent = getRatio(ship.currentArmor, ship.baseStats?.baseArmor);
+  const hpPercent = getRatio(ship.currentHp, effective.maxHp);
+  const shieldPercent = getRatio(ship.currentShield, effective.maxShield);
+  const armorPercent = getRatio(ship.currentArmor, effective.maxArmor);
 
-  // Comptage des stacks par type d’effet élémentaire
   const elementalStacks: Record<ElementalEffectType, number> = ELEMENTAL_TYPES.reduce((acc, type) => {
     acc[type] = ship.statusEffects.filter(e => e.type === type).length;
     return acc;
@@ -24,9 +27,9 @@ export const DisplayShipInfo: React.FC<DisplayShipInfoProps> = ({ ship }) => {
 
   return (
     <div className="panel">
-      <Bar label="HP" value={ship.currentHp} max={ship.baseStats?.baseHp} percent={hpPercent} type="hp" />
-      <Bar label="Shield" value={ship.currentShield} max={ship.baseStats?.baseShield} percent={shieldPercent} type="shield" />
-      <Bar label="Armor" value={ship.currentArmor} max={ship.baseStats?.baseArmor} percent={armorPercent} type="armor" />
+      <Bar label="HP" value={ship.currentHp} max={effective.maxHp} percent={hpPercent} type="hp" />
+      <Bar label="Shield" value={ship.currentShield} max={effective.maxShield} percent={shieldPercent} type="shield" />
+      <Bar label="Armor" value={ship.currentArmor} max={effective.maxArmor} percent={armorPercent} type="armor" />
 
       <div className="elemental-effects-row">
         {ELEMENTAL_TYPES.map(type =>
