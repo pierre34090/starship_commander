@@ -13,28 +13,28 @@ export function getDamageMultiplierByTarget(
 ): number {
   if (target === 'shield') {
     switch (damageType) {
-      case 'ion': return 2.0;
-      case 'normal': return 1.0;
-      case 'fire': return 0.5;
-      case 'corrosive': return 0.0;
+      case 'ion': return 4.0;
+      case 'normal': return 2.0;
+      case 'fire': return 1;
+      case 'corrosive': return 1;
     }
   }
 
   if (target === 'armor') {
     switch (damageType) {
-      case 'corrosive': return 2.0;
-      case 'normal': return 1;
-      case 'fire': return 0.5;
-      case 'ion': return 0.0;
+      case 'corrosive': return 4.0;
+      case 'normal': return 2;
+      case 'fire': return 1;
+      case 'ion': return 1;
     }
   }
 
   if (target === 'hp') {
     switch (damageType) {
-      case 'fire': return 2.0;
-      case 'normal': return 1.0;
-      case 'corrosive':
-      case 'ion': return 0.5;
+      case 'fire': return 4;
+      case 'normal': return 2;
+      case 'corrosive': return 1;
+      case 'ion': return 1;
     }
   }
 

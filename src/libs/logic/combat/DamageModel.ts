@@ -50,6 +50,7 @@ export function applyArmorReduction(
   // Damage type determines how much armor is degraded by the hit
   const armorLossMultiplier = getDamageMultiplierByTarget(damageType, 'armor');
   const armorLoss = absorption * armorLossMultiplier;
+  
 
   return {
     damageAfterArmor: reducedDamage,
@@ -60,10 +61,6 @@ export function applyArmorReduction(
 
 
 
-/**
- * Splits damage between shield and HP based on type effectiveness and available shield.
- * Assumes damage has already been reduced by armor.
- */
 export function splitDamageBetweenShieldAndHP(
   damageAfterArmor: number,
   damageType: DamageType,
@@ -75,11 +72,18 @@ export function splitDamageBetweenShieldAndHP(
   const shieldRatio = getDamageMultiplierByTarget(damageType, 'shield');
   const hpRatio = getDamageMultiplierByTarget(damageType, 'hp');
 
-  const potentialShieldDamage = damageAfterArmor * shieldRatio;
-  const toShield = Math.min(potentialShieldDamage, currentShield);
+  // Max damage that the shield can absorb, taking into account the type effectiveness
+  const maxShieldAbsorbable = currentShield / shieldRatio;
 
-  const remainingAfterShield = damageAfterArmor - toShield;
-  const toHp = remainingAfterShield * hpRatio;
+  // Actual damage that will be absorbed (if lower than total damage)
+  const shieldAbsorbedRaw = Math.min(damageAfterArmor, maxShieldAbsorbable);
+
+  // Convert back to actual shield cost, clamp defensively
+  const toShield = Math.min(currentShield, shieldAbsorbedRaw * shieldRatio);
+
+  // Any remaining raw damage is applied to HP
+  const remainingAfterShield = damageAfterArmor - shieldAbsorbedRaw;
+  const toHp = Math.max(0, remainingAfterShield * hpRatio);
 
   return { toShield, toHp };
 }
@@ -92,7 +96,10 @@ export function applyFlatDamageToShip(
   const currentArmor = ship.currentArmor ?? 0;
   const currentShield = ship.currentShield ?? 0;
 
-  
+  console.log(`\n=== [Damage] Incoming ${damageType.toUpperCase()} damage ===`);
+  console.log(`Ship: ${ship.name}`);
+  console.log(`Base damage: ${baseDamage}`);
+  console.log(`Current HP: ${ship.currentHp}, Armor: ${currentArmor}, Shield: ${currentShield}`);
 
   // Step 1: apply armor reduction
   const {
@@ -100,6 +107,11 @@ export function applyFlatDamageToShip(
     absorbedByArmor,
     newCurrentArmor,
   } = applyArmorReduction(baseDamage, damageType, currentArmor);
+
+  console.log(`→ After armor reduction:`);
+  console.log(`Absorbed by armor: ${absorbedByArmor}`);
+  console.log(`Damage after armor: ${damageAfterArmor}`);
+  console.log(`New armor value: ${newCurrentArmor}`);
 
   // Step 2: split remaining damage between shield and HP
   const {
@@ -110,6 +122,12 @@ export function applyFlatDamageToShip(
   const newShield = Math.max(0, currentShield - toShield);
   const newHp = Math.max(0, ship.currentHp - toHp);
 
+  console.log(`→ Damage distribution:`);
+  console.log(`To shield: ${toShield}`);
+  console.log(`To HP: ${toHp}`);
+  console.log(`New shield value: ${newShield}`);
+  console.log(`New HP value: ${newHp}`);
+
   return {
     ...ship,
     currentArmor: newCurrentArmor,
@@ -117,4 +135,3 @@ export function applyFlatDamageToShip(
     currentHp: newHp,
   };
 }
-

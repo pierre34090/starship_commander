@@ -102,8 +102,7 @@ export function processWeaponRound(
     currentAmmo: newAmmo,
     weapons: updatedWeapons,
   };
-
-    console.log('ammo left:', updatedAttacker.currentAmmo);
+  
 
   return [updatedAttacker, updatedDefender];
 }
