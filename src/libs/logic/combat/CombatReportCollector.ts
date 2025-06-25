@@ -1,3 +1,7 @@
+// PLus utilisé actuellement
+
+// src/libs/logic/combat/CombatReportCollector.ts
+
 import { MessageBus } from '../../../contexts/MessageContext';
 
 export type CombatEvent =

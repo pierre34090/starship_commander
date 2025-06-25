@@ -5,7 +5,7 @@ import { createWeaponInstance } from '../Items/WeaponFactory';
 import { createModuleInstance } from '../Items/ModuleFactory';
 import { energyCore } from '../Items/ModulesTemplates';
 import { laserBlaster, plasmaBomb } from '../Items/WeaponsTemplates';
-import { createSubsystems } from '../../state/Ships/ShipSystems';
+import { createSubsystems } from '../../state/Ships/ShipSubsystems';
 import { createShipBaseState } from '../../state/Ships/ShipBaseState';
 
 export const kestrel: ShipState = createPlayerShipState({

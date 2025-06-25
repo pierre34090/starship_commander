@@ -147,9 +147,3 @@ export function modifyArmor(
   return [{ ...ship, currentArmor: after }, applied];
 }
 
-// --- Stub : damage handling ---
-
-export function takeDamage(target: ShipState, attacker: ShipState): ShipState {
-  // TODO: implement damage calculation logic
-  return target;
-}

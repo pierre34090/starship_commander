@@ -2,7 +2,7 @@
 
 import type { EconomyState } from './EconomyState';
 import type { ShipState } from './Ships/ShipState';
-import type { TargetingPriority } from './Ships/ShipSystems';
+import type { TargetingPriority } from './Ships/ShipSubsystems';
 
 import { initEconomyState } from './EconomyState';
 import { generateEnemiesForStage } from '../models/Ships/EnemyFactory';

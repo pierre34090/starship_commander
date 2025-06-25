@@ -96,22 +96,13 @@ export function applyFlatDamageToShip(
   const currentArmor = ship.currentArmor ?? 0;
   const currentShield = ship.currentShield ?? 0;
 
-  console.log(`\n=== [Damage] Incoming ${damageType.toUpperCase()} damage ===`);
-  console.log(`Ship: ${ship.name}`);
-  console.log(`Base damage: ${baseDamage}`);
-  console.log(`Current HP: ${ship.currentHp}, Armor: ${currentArmor}, Shield: ${currentShield}`);
 
   // Step 1: apply armor reduction
   const {
     damageAfterArmor,
-    absorbedByArmor,
+    absorbedByArmor, // pour la generation du message de degat
     newCurrentArmor,
   } = applyArmorReduction(baseDamage, damageType, currentArmor);
-
-  console.log(`→ After armor reduction:`);
-  console.log(`Absorbed by armor: ${absorbedByArmor}`);
-  console.log(`Damage after armor: ${damageAfterArmor}`);
-  console.log(`New armor value: ${newCurrentArmor}`);
 
   // Step 2: split remaining damage between shield and HP
   const {
@@ -121,13 +112,6 @@ export function applyFlatDamageToShip(
 
   const newShield = Math.max(0, currentShield - toShield);
   const newHp = Math.max(0, ship.currentHp - toHp);
-
-  console.log(`→ Damage distribution:`);
-  console.log(`To shield: ${toShield}`);
-  console.log(`To HP: ${toHp}`);
-  console.log(`New shield value: ${newShield}`);
-  console.log(`New HP value: ${newHp}`);
-
   return {
     ...ship,
     currentArmor: newCurrentArmor,

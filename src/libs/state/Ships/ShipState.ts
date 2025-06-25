@@ -4,8 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { createShipBaseState, ShipBaseState } from './ShipBaseState';
 import type { WeaponState } from '../Items/WeaponState';
 import type { ModuleState } from '../Items/ModuleState';
-import type { Subsystems } from './ShipSystems';
-import { createSubsystems } from './ShipSystems';
+import type { Subsystems } from './ShipSubsystems';
+import { createSubsystems } from './ShipSubsystems';
 import type { ElementalEffect } from '../../logic/combat/DamageType';
 
 export type ShipRole = 'player' | 'enemy' | 'boss';
@@ -27,7 +27,9 @@ export type ShipState = {
 
   weapons: WeaponState[];
   modules: ModuleState[];
+
   subsystems: Subsystems;
+
   statusEffects: ElementalEffect[];
 
   // Specific to player

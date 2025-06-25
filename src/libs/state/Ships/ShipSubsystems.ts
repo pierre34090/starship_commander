@@ -1,14 +1,11 @@
 // src/libs/state/Ships/ShipSystems.ts
 
-import type { DamageType } from '../../logic/combat/DamageType';
-
 // Sous-systèmes pouvant être ciblés
 export type SubsystemType =
   | 'shields'
   | 'weapons'
   | 'engines'
-  | 'targeting'
-  | 'hull'; // la coque, i.e. les HP globaux
+  | 'targeting';
 
 export type ShipSubsystemState = {
   currentHp: number;
@@ -46,6 +43,5 @@ export function createSubsystems(
     weapons: createShipSubsystemState(overrides.weapons ?? {}),
     engines: createShipSubsystemState(overrides.engines ?? {}),
     targeting: createShipSubsystemState(overrides.targeting ?? {}),
-    hull: createShipSubsystemState(overrides.hull ?? {}),
   };
 }
