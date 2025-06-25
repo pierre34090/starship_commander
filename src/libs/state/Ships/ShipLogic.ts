@@ -3,7 +3,6 @@ import { DAMAGE_TYPES, ELEMENTAL_TYPES } from '../../logic/combat/DamageType';
 
 import { ShipState } from '../../state/Ships/ShipState';
 import { ShipEffectiveAttributes } from '../../state/Ships/ShipEffectiveAttributes';
-import { ModuleState } from '../../state/Items/ModuleState';
 import type { BaseModuleBonuses, FlatAndMult } from '../Items/ModuleBonuses';
 
 // --- Effective computation ---

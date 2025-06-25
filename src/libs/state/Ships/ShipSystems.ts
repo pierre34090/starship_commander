@@ -22,22 +22,30 @@ export type Subsystems = Record<SubsystemType, ShipSubsystemState>;
 export type TargetingPriority = SubsystemType | null;
 
 /**
- * Initialise les sous-systèmes avec des valeurs par défaut.
+ * Factory pour créer un ShipSubsystemState avec valeurs par défaut
  */
-export function defaultSubsystems(): Subsystems {
-  const defaultHp = 3;
-
-  const create = (): ShipSubsystemState => ({
-    currentHp: defaultHp,
-    maxHp: defaultHp,
-    isDisabled: false,
-  });
-
+export function createShipSubsystemState(
+  overrides: Partial<ShipSubsystemState> = {}
+): ShipSubsystemState {
   return {
-    shields: create(),
-    weapons: create(),
-    engines: create(),
-    targeting: create(),
-    hull: create(),
+    currentHp: overrides.currentHp !== undefined ? overrides.currentHp : 3,
+    maxHp: overrides.maxHp !== undefined ? overrides.maxHp : 3,
+    isDisabled: overrides.isDisabled !== undefined ? overrides.isDisabled : false,
+  };
+}
+
+/**
+ * Factory pour créer un ensemble complet de sous-systèmes,
+ * avec possibilité d’overrides partiels par sous-système.
+ */
+export function createSubsystems(
+  overrides: Partial<Record<SubsystemType, Partial<ShipSubsystemState>>> = {}
+): Subsystems {
+  return {
+    shields: createShipSubsystemState(overrides.shields ?? {}),
+    weapons: createShipSubsystemState(overrides.weapons ?? {}),
+    engines: createShipSubsystemState(overrides.engines ?? {}),
+    targeting: createShipSubsystemState(overrides.targeting ?? {}),
+    hull: createShipSubsystemState(overrides.hull ?? {}),
   };
 }

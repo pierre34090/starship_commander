@@ -1,7 +1,7 @@
 // src/libs/state/Ships/PlayerShipState.ts
 
 import type { ShipState } from './ShipState';
-import { initShipState } from './ShipState';
+import { createShipState } from './ShipState';
 
 export type PlayerShipState = {
   ship: ShipState;
@@ -9,8 +9,19 @@ export type PlayerShipState = {
   level: number;
 };
 
-export const initPlayerShipState = (): PlayerShipState => ({
-  ship: initShipState(),
-  xp: 0,
-  level: 1,
-});
+/**
+ * Factory to create a PlayerShipState with optional overrides and defaults.
+ */
+export function createPlayerShipState(
+  overrides: {
+    ship?: Partial<ShipState>;
+    xp?: number;
+    level?: number;
+  } = {}
+): PlayerShipState {
+  return {
+    ship: createShipState(overrides.ship ?? {}),
+    xp: overrides.xp ?? 0,
+    level: overrides.level ?? 1,
+  };
+}

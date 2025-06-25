@@ -35,11 +35,18 @@ export function takeAttack(
   }
 
   const rawDamage = computeRawDamage(weapon, attackerStats);
+
+  const msg = `defenderName=${defender.name}, weaponName=${weapon.name}, damageFinal=${rawDamage}, hitResult=${hit ? 'hit' : 'miss'}`;
+  MessageBus.send({
+    type: 'combat',
+    text: msg,
+  });
   const damaged = applyFlatDamageToShip(defender, weapon.type, rawDamage);
 
   // Try to apply an elemental effect based on weapon and attacker stats
   return maybeApplyElementalEffect(damaged, weapon, attackerStats);
 }
+
 
 /**
  * Processes all active weapons of a ship for one round:
@@ -52,9 +59,10 @@ export function processWeaponRound(
   attackerStats: ShipEffectiveAttributes,
   defender: ShipState,
   defenderStats: ShipEffectiveAttributes
-): [ShipState, WeaponState[]] {
+): [ShipState, ShipState, WeaponState[]] {
   const updatedWeapons: WeaponState[] = [];
   let updatedDefender = defender;
+  let newAmmo = attacker.currentAmmo;
 
   for (const weapon of attacker.weapons) {
     if (!weapon.isActive) {
@@ -70,7 +78,18 @@ export function processWeaponRound(
       continue;
     }
 
+    if (newAmmo < weapon.ammoConsumption) {
+      updatedWeapons.push({
+        ...weapon,
+        cooldownRemaining: 0,
+      });
+      continue;
+    }
+
+
     updatedDefender = takeAttack(updatedDefender, attackerStats, defenderStats, weapon);
+
+    newAmmo -= weapon.ammoConsumption;
 
     updatedWeapons.push({
       ...weapon,
@@ -78,5 +97,12 @@ export function processWeaponRound(
     });
   }
 
-  return [updatedDefender, updatedWeapons];
+  const updatedAttacker = {
+      ...attacker,
+      currentAmmo: newAmmo,
+    };
+
+    console.log('ammo left:', updatedAttacker.currentAmmo);
+
+  return [updatedAttacker, updatedDefender, updatedWeapons];
 }

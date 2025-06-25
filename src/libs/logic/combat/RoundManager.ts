@@ -31,6 +31,7 @@ export function runCombatRound(
 
   const nextEnemy = findNextEnemy(enemies, boss);
   if (!nextEnemy) return [gameState, metaState, undefined];
+  
 
   const [newPlayer, updatedEnemy] = runCombatRoundBetween(player, nextEnemy);
 
@@ -66,19 +67,21 @@ export function runCombatRoundBetween(
   const enemyAttrs = computeEffectiveAttributes(enemy.ship);
 
   // Le joueur attaque l'ennemi
-  const [enemyAfterAttack, , ] = processWeaponRound(player.ship, playerAttrs, enemy.ship, enemyAttrs);
+  const [playerAfterAttackTmp, enemyAfterAttackTmp, ] =
+  processWeaponRound(player.ship, playerAttrs, enemy.ship, enemyAttrs);
 
   // L'ennemi attaque le joueur
-  const [playerAfterAttack, , ] = processWeaponRound(enemy.ship, enemyAttrs, player.ship, playerAttrs);
+  const [enemyAfterAttackFinal, playerAfterAttackFinal, ] =
+  processWeaponRound(enemyAfterAttackTmp, enemyAttrs, playerAfterAttackTmp, playerAttrs);
 
   const newPlayer: PlayerShipState = {
     ...player,
-    ship: { ...playerAfterAttack }, // conserve xp, level
+    ship: { ...playerAfterAttackFinal },
   };
 
   const newEnemy: EnemyShipState = {
     ...enemy,
-    ship: { ...enemyAfterAttack }, // conserve status, bounty, etc.
+    ship: { ...enemyAfterAttackFinal }, 
   };
 
   return [newPlayer, newEnemy];

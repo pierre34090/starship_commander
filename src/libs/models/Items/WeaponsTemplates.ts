@@ -11,10 +11,10 @@ export const laserBlaster: Omit<WeaponState, 'id'> = {
   damage: 5,
   cooldown: 1,
   cooldownRemaining: 0,
-  type: 'normal',
+  type: 'ion',
   ammoConsumption: 1,
   energyConsumption: 2,
-  elementalEffectProbability: 0.0,
+  elementalEffectProbability: 0.9,
 };
 
 export const plasmaBomb: Omit<WeaponState, 'id'> = {
@@ -26,7 +26,7 @@ export const plasmaBomb: Omit<WeaponState, 'id'> = {
   damage: 12,
   cooldown: 3,
   cooldownRemaining: 0,
-  type: 'explosive',
+  type: 'fire',
   ammoConsumption: 2,
   energyConsumption: 4,
   elementalEffectProbability: 0.9,

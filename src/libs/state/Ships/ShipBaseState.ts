@@ -9,11 +9,15 @@ export type ShipBaseState = {
   baseEvasion: number;
 };
 
-export const initShipBaseState = (): ShipBaseState => ({
-  baseHp: 0,
-  baseShield: 0,
-  baseArmor: 0,
-  baseGlobalDamage: 0,
-  basePrecision: 0,
-  baseEvasion: 0,
-});
+export function createShipBaseState(
+  overrides: Partial<ShipBaseState> = {}
+): ShipBaseState {
+  return {
+    baseHp: overrides.baseHp ?? 0,
+    baseShield: overrides.baseShield ?? 0,
+    baseArmor: overrides.baseArmor ?? 0,
+    baseGlobalDamage: overrides.baseGlobalDamage ?? 0,
+    basePrecision: overrides.basePrecision ?? 0,
+    baseEvasion: overrides.baseEvasion ?? 0,
+  };
+}

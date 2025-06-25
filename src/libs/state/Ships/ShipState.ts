@@ -1,15 +1,16 @@
 // src/libs/state/Ships/ShipState.ts
 
-import { ShipBaseState } from './ShipBaseState';
-import { ShipEffectiveAttributes } from './ShipEffectiveAttributes';
-import { computeEffectiveAttributes } from './ShipLogic';
-import { WeaponState } from '../Items/WeaponState';
-import { ModuleState } from '../Items/ModuleState';
-
+import { v4 as uuidv4 } from 'uuid';
+import { createShipBaseState, ShipBaseState } from './ShipBaseState';
+import type { WeaponState } from '../Items/WeaponState';
+import type { ModuleState } from '../Items/ModuleState';
 import type { Subsystems } from './ShipSystems';
-import type { ElementalEffect } from '../../logic/combat/DamageType'; ;
+import type { ElementalEffect } from '../../logic/combat/DamageType';
+
+import { createSubsystems } from './ShipSystems';
 
 export type ShipState = {
+  id: string;             // Unique identifier
   name: string;
   description: string;
   sprite: string;
@@ -29,86 +30,26 @@ export type ShipState = {
   statusEffects: ElementalEffect[];
 };
 
-export const initShipState = (): ShipState => ({
-  name: '',
-  description: '',
-  sprite: '',
-  baseStats: {
-    baseHp: 0,
-    baseShield: 0,
-    baseArmor: 0,
-    baseGlobalDamage: 0,
-    basePrecision: 0,
-    baseEvasion: 0,
-  },
-  currentHp: 0,
-  currentShield: 0,
-  currentArmor: 0,
-  currentAmmo: 0,
-  weapons: [],
-  modules: [],
-  statusEffects: [],
-  subsystems: {
-    shields:   { currentHp: 100, maxHp: 100, isDisabled: false },
-    weapons:   { currentHp: 100, maxHp: 100, isDisabled: false },
-    engines:   { currentHp: 100, maxHp: 100, isDisabled: false },
-    targeting: { currentHp: 100, maxHp: 100, isDisabled: false },
-    hull:      { currentHp: 9999, maxHp: 9999, isDisabled: false }, // placeholder, jamais désactivé
-  },
-});
-
-// --- Computed Wrapper ---
-
-export type ShipComputed = {
-  ship: ShipState;
-  attributes: ShipEffectiveAttributes;
-};
-
-export function computeShip(ship: ShipState): ShipComputed {
+/**
+ * Factory to create a ShipState with optional overrides.
+ * Generates a new unique id on each call.
+ */
+export function createShipState(
+  overrides: Partial<ShipState> = {}
+): ShipState {
   return {
-    ship,
-    attributes: computeEffectiveAttributes(ship),
+    id: overrides.id ?? uuidv4(),
+    name: overrides.name ?? '',
+    description: overrides.description ?? '',
+    sprite: overrides.sprite ?? '',
+    baseStats: createShipBaseState(overrides.baseStats ?? {}),
+    currentHp: overrides.currentHp ?? 0,
+    currentShield: overrides.currentShield ?? 0,
+    currentArmor: overrides.currentArmor ?? 0,
+    currentAmmo: overrides.currentAmmo ?? 0,
+    weapons: overrides.weapons ?? [],
+    modules: overrides.modules ?? [],
+    subsystems: createSubsystems(overrides.subsystems ?? {}),
+    statusEffects: overrides.statusEffects ?? [],
   };
-}
-
-export function isShipDead(ship: ShipState): boolean {
-  return ship.currentHp <= 0;
-}
-
-// --- Stat Modifiers ---
-
-export function modifyHp(
-  ship: ShipState,
-  delta: number,
-  attrs: ShipEffectiveAttributes
-): [ShipState, number] {
-  const max = attrs.maxHp;
-  const before = ship.currentHp;
-  const after = Math.max(0, Math.min(before + delta, max));
-  const applied = after - before;
-  return [{ ...ship, currentHp: after }, applied];
-}
-
-export function modifyShield(
-  ship: ShipState,
-  delta: number,
-  attrs: ShipEffectiveAttributes
-): [ShipState, number] {
-  const max = attrs.maxShield;
-  const before = ship.currentShield;
-  const after = Math.max(0, Math.min(before + delta, max));
-  const applied = after - before;
-  return [{ ...ship, currentShield: after }, applied];
-}
-
-export function modifyArmor(
-  ship: ShipState,
-  delta: number,
-  attrs: ShipEffectiveAttributes
-): [ShipState, number] {
-  const max = attrs.maxArmor;
-  const before = ship.currentArmor;
-  const after = Math.max(0, Math.min(before + delta, max));
-  const applied = after - before;
-  return [{ ...ship, currentArmor: after }, applied];
 }

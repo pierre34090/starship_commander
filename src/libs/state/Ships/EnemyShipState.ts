@@ -1,8 +1,6 @@
 // src/libs/state/Ships/EnemyShipState.ts
 
-// src/libs/state/Ships/EnemyShipState.ts
-
-import { type ShipState, initShipState } from './ShipState';
+import { type ShipState, createShipState } from './ShipState';
 
 export type EnemyStatus = 'alive' | 'dead' | 'skipped';
 
@@ -14,11 +12,24 @@ export type EnemyShipState = {
   status: EnemyStatus;
 };
 
-
-export const initEnemyShipState = (): EnemyShipState => ({
-  ship: initShipState(),
-  behavior: 'random',
-  bounty: 0,
-  xp: 0,
-  status: 'alive',
-});
+/**
+ * Factory to create an EnemyShipState with optional overrides.
+ * Same pattern as createPlayerShipState.
+ */
+export function createEnemyShipState(
+  overrides: {
+    ship?: Partial<ShipState>;
+    behavior?: 'aggressive' | 'defensive' | 'random';
+    bounty?: number;
+    xp?: number;
+    status?: EnemyStatus;
+  } = {}
+): EnemyShipState {
+  return {
+    ship: createShipState(overrides.ship ?? {}),
+    behavior: overrides.behavior ?? 'random',
+    bounty: overrides.bounty ?? 0,
+    xp: overrides.xp ?? 0,
+    status: overrides.status ?? 'alive',
+  };
+}

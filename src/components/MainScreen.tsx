@@ -8,6 +8,7 @@ import { MessagePanel } from '../components/MessagePanel';
 
 import { PlayerDebugPanel } from './PlayerDebugPanel';
 import { EnemyDebugPanel } from './EnemyDebugPanel';
+import { DisplayShipInfo } from './DisplayShipInfo';
 
 export default function MainScreen() {
   const context = useContext(GameContext);
@@ -27,7 +28,7 @@ export default function MainScreen() {
       <div className="panel-grid">
         <PlayerShipPanel ship={ship} />
         <CombatPanel />
-        <EconomyPanel />
+        <DisplayShipInfo ship={nextEnemy.ship} />
         <MessagePanel />
       </div>
 

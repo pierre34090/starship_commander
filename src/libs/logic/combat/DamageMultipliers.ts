@@ -15,7 +15,7 @@ export function getDamageMultiplierByTarget(
     switch (damageType) {
       case 'ion': return 2.0;
       case 'normal': return 1.0;
-      case 'explosive': return 0.5;
+      case 'fire': return 0.5;
       case 'corrosive': return 0.0;
     }
   }
@@ -24,14 +24,14 @@ export function getDamageMultiplierByTarget(
     switch (damageType) {
       case 'corrosive': return 2.0;
       case 'normal': return 1;
-      case 'explosive': return 0.5;
+      case 'fire': return 0.5;
       case 'ion': return 0.0;
     }
   }
 
   if (target === 'hp') {
     switch (damageType) {
-      case 'explosive': return 2.0;
+      case 'fire': return 2.0;
       case 'normal': return 1.0;
       case 'corrosive':
       case 'ion': return 0.5;

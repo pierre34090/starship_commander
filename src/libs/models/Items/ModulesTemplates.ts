@@ -1,8 +1,8 @@
 // src/libs/models/Items/ModulesTemplates.ts
 
-import type { ModuleState } from '../../state/Items/ModuleState';
+import { createModuleInstance } from '../Items/ModuleFactory';
 
-export const energyCore: ModuleState = {
+export const energyCore = createModuleInstance({
   name: "Energy Core Mk.II",
   description: "Increases energy production and capacity.",
   sprite: "/sprites/modules/energyCore.png",
@@ -11,18 +11,19 @@ export const energyCore: ModuleState = {
   energyConsumption: 0,
 
   bonuses: {
-    maxEnergy: { flat: 10 },
-    regenAmmo: { flat: 2 },
+    maxEnergy: { flat: 10, mult: 0 },
+    regenAmmo: { flat: 2, mult: 0 },
+    maxAmmo: { flat: 300, mult: 0 },
 
     elementalDamage: {
-      ion: { flat: 5 },
-      corrosive: {},
-      explosive: { flat: 5},
+      ion: { flat: 5, mult: 0 },
+      corrosive: { flat: 0, mult: 0 },
+      fire: { flat: 5, mult: 0 },
     },
     elementalEffectDuration: {
-      ion: { flat: 3 },
-      corrosive: {},
-      explosive: {flat: 6},
+      ion: { flat: 6, mult: 0 },
+      corrosive: { flat: 0, mult: 0 },
+      fire: { flat: 6, mult: 0 },
     },
   },
-};
+});

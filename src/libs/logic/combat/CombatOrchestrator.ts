@@ -4,6 +4,7 @@ import { runCombatRound } from './RoundManager';
 import { handleStageProgression } from './StageManager';
 import { applyEndOfCombatEffects } from './EndOfCombatManager';
 import { applyEndOfRoundEffects } from './EndOfRoundManager';
+import { isShipDead } from '../../state/Ships/ShipLogic';
 
 import { MessageBus } from '../../../contexts/MessageContext';
 
@@ -20,6 +21,9 @@ export function resolveCombatStep(
   const [afterCombatState, afterCombatMeta, targetEnemy] = runCombatRound(gameState, metaState);
 
   const afterEffects = applyEndOfRoundEffects(afterCombatState);
+
+  // ICI FAUT GERER QUE L4NEMI EST BIEN MORT
+
 
   // Délègue au stage manager la gestion complète de la progression du stage
   const [finalGameState, finalMetaState] = handleStageProgression(afterEffects, afterCombatMeta);
@@ -94,3 +98,30 @@ export function resolveSkipEnemy(
   return handleStageProgression(afterEffects, metaState);
 }
 
+
+/**
+ * Met à jour le statut d’un vaisseau ennemi selon ses HP :
+ * - Si ses HP sont tombés à 0, il est marqué comme mort.
+ * - Si déjà mort, on le maintient à 0 HP (même s’il a regagné de la vie).
+ */
+export function updateShipDeathStatus(ship: EnemyShipState): EnemyShipState {
+  if (ship.status !== 'dead' && isShipDead(ship.ship)) {
+    return { ...ship, status: 'dead' };
+  }
+
+  if (ship.status === 'dead' && ship.ship.currentHp > 0) {
+    return { ...ship, ship: { ...ship.ship, currentHp: 0 } };
+  }
+
+  return ship;
+}
+
+export function enforceEnemyStatuses(
+  enemies: EnemyShipState[],
+  boss: EnemyShipState | null
+): [EnemyShipState[], EnemyShipState | null] {
+  return [
+    enemies.map(updateShipDeathStatus),
+    boss ? updateShipDeathStatus(boss) : null,
+  ];
+}

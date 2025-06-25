@@ -75,11 +75,6 @@ export function maybeApplyElementalEffect(
   const rolled = Math.random();
   if (rolled > chance) return defender;
 
-  console.log('Duration check:', {
-    type: damageType,
-    duration: attackerStats.elementalEffectDuration[damageType],
-  });
-
   const duration = attackerStats.elementalEffectDuration[damageType];
   if (duration <= 0) return defender;
 

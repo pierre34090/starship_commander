@@ -5,7 +5,7 @@ import type { GameMetaState } from '../../state/MetaGameState';
 import { generateEnemiesForStage } from '../../models/Ships/EnemyFactory';
 import { MessageBus } from '../../../contexts/MessageContext';
 
-import { isShipDead } from '../../state/Ships/ShipState';
+import { isShipDead } from '../../state/Ships/ShipLogic';
 
 const LAST_STAGE_INDEX = 2;
 

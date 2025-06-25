@@ -20,8 +20,7 @@ function applyEffectsAndRegen(ship: ShipState): ShipState {
   const base = applyElementalStatusEffects(ship);
 
   // Si le vaisseau est mort, on ne régénère pas
-
-  console.log("Current HP:", base.currentHp);
+  
   if (base.currentHp <= 0) {
     return base;
   }

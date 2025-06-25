@@ -3,8 +3,6 @@
 import { WeaponState } from '../../state/Items/WeaponState';
 import { ShipEffectiveAttributes } from '../../state/Ships/ShipEffectiveAttributes';
 import { getDamageMultiplierByTarget } from './DamageMultipliers';
-import { MessageBus } from '../../../contexts/MessageContext';
-
 import type { DamageType } from './DamageType';
 import type { ShipState } from '../../state/Ships/ShipState';
 
@@ -109,12 +107,6 @@ export function applyFlatDamageToShip(
 
   const newShield = Math.max(0, currentShield - toShield);
   const newHp = Math.max(0, ship.currentHp - toHp);
-
-  // Step 3: apply changes and send message
-  MessageBus.send({
-    type: 'combat',
-    text: `${ship.name} took ${toHp} HP and ${toShield} shield damage (${baseDamage} base, ${absorbedByArmor} absorbed by armor).`,
-  });
 
   return {
     ...ship,
