@@ -3,6 +3,7 @@
 import { getHitChance, computeRawDamage } from './DamageModel';
 import { applyFlatDamageToShip } from './DamageModel';
 import { maybeApplyElementalEffect } from './ElementalEffectUtils';
+import { applyFlatDamageToSubsystemIfShieldDown } from './DamageModel';
 
 import type { ShipState } from '../../state/Ships/ShipState';
 import type { WeaponState } from '../../state/Items/WeaponState';
@@ -27,23 +28,16 @@ export function takeAttack(
   const hit = Math.random() < hitChance;
 
   if (!hit) {
-    MessageBus.send({
-      type: 'combat',
-      text: `${defender.name} dodged ${weapon.name} attack.`,
-    });
     return defender;
   }
 
   const rawDamage = computeRawDamage(weapon, attackerStats);
 
-  const msg = `defenderName=${defender.name}, weaponName=${weapon.name}, damageFinal=${rawDamage}, hitResult=${hit ? 'hit' : 'miss'}`;
-  MessageBus.send({
-    type: 'combat',
-    text: msg,
-  });
-  const damaged = applyFlatDamageToShip(defender, weapon.type, rawDamage);
+  let damaged = applyFlatDamageToShip(defender, weapon.type, rawDamage);
 
-  // Try to apply an elemental effect based on weapon and attacker stats
+  damaged = applyFlatDamageToSubsystemIfShieldDown(damaged, rawDamage, weapon);
+
+  //  Applique un éventuel effet élémentaire
   return maybeApplyElementalEffect(damaged, weapon, attackerStats);
 }
 
@@ -63,6 +57,7 @@ export function processWeaponRound(
   const updatedWeapons: WeaponState[] = [];
   let updatedDefender = defender;
   let newAmmo = attacker.currentAmmo;
+  
 
   for (const weapon of attacker.weapons) {
     if (!weapon.isActive) {
@@ -86,6 +81,11 @@ export function processWeaponRound(
       continue;
     }
 
+    if (!weapon.target) {
+      updatedWeapons.push(weapon);
+      continue;
+    }
+
 
     updatedDefender = takeAttack(updatedDefender, attackerStats, defenderStats, weapon);
 
@@ -102,7 +102,7 @@ export function processWeaponRound(
     currentAmmo: newAmmo,
     weapons: updatedWeapons,
   };
-  
+
 
   return [updatedAttacker, updatedDefender];
 }

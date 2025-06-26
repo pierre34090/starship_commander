@@ -1,5 +1,6 @@
 // src/libs/state/Ships/ShipSystems.ts
 
+
 // Sous-systèmes pouvant être ciblés
 export type SubsystemType =
   | 'shields'
@@ -8,9 +9,12 @@ export type SubsystemType =
   | 'targeting';
 
 export type ShipSubsystemState = {
+  level: number;
   currentHp: number;
   maxHp: number;
   isDisabled: boolean;
+  hpPerLevel: number;
+  bonusPerLevel: number;
 };
 
 export type Subsystems = Record<SubsystemType, ShipSubsystemState>;
@@ -24,10 +28,14 @@ export type TargetingPriority = SubsystemType | null;
 export function createShipSubsystemState(
   overrides: Partial<ShipSubsystemState> = {}
 ): ShipSubsystemState {
+  const perPoint = overrides.hpPerLevel ?? 20;
   return {
-    currentHp: overrides.currentHp !== undefined ? overrides.currentHp : 3,
-    maxHp: overrides.maxHp !== undefined ? overrides.maxHp : 3,
-    isDisabled: overrides.isDisabled !== undefined ? overrides.isDisabled : false,
+    level: overrides.level ?? 1,
+    currentHp: overrides.currentHp ?? perPoint,
+    maxHp: overrides.maxHp ?? perPoint,
+    isDisabled: overrides.isDisabled ?? false,
+    hpPerLevel: perPoint,
+    bonusPerLevel: overrides.bonusPerLevel ?? 0.1,
   };
 }
 
@@ -45,3 +53,6 @@ export function createSubsystems(
     targeting: createShipSubsystemState(overrides.targeting ?? {}),
   };
 }
+
+
+

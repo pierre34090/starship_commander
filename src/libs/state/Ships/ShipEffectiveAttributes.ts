@@ -11,8 +11,6 @@ export type ShipEffectiveAttributes = {
   precision: number;
   evasion: number;
 
-  maxEnergy: number;
-
   regenAmmo: number;
   maxAmmo: number;
 

@@ -1,15 +1,18 @@
 // src/libs/state/Ships/ShipState.ts
 
-import { v4 as uuidv4 } from 'uuid';
-import { createShipBaseState, ShipBaseState } from './ShipBaseState';
 import type { WeaponState } from '../Items/WeaponState';
 import type { ModuleState } from '../Items/ModuleState';
-import type { Subsystems } from './ShipSubsystems';
-import { createSubsystems } from './ShipSubsystems';
+import type { Subsystems, SubsystemType } from './ShipSubsystems';
 import type { ElementalEffect } from '../../logic/combat/DamageType';
+
+import { v4 as uuidv4 } from 'uuid';
+import { createShipBaseState, ShipBaseState } from './ShipBaseState';
+import { createSubsystems } from './ShipSubsystems';
+
 
 export type ShipRole = 'player' | 'enemy' | 'boss';
 export type EnemyStatus = 'alive' | 'dead' | 'skipped';
+export type EnergyAllocation = Record<SubsystemType, number>;
 
 export type ShipState = {
   id: string;
@@ -28,7 +31,9 @@ export type ShipState = {
   weapons: WeaponState[];
   modules: ModuleState[];
 
+  maxEnergy: number;
   subsystems: Subsystems;
+  energyAllocation: EnergyAllocation;
 
   statusEffects: ElementalEffect[];
 
@@ -63,7 +68,16 @@ export function createShipState(overrides: Partial<ShipState> = {}): ShipState {
 
     weapons: overrides.weapons ?? [],
     modules: overrides.modules ?? [],
+
+    maxEnergy: overrides.maxEnergy ?? 5,
     subsystems: createSubsystems(overrides.subsystems ?? {}),
+    energyAllocation: {
+      shields: 0,
+      weapons: 0,
+      engines: 0,
+      targeting: 0,
+    },
+
     statusEffects: overrides.statusEffects ?? [],
 
     xp: overrides.xp,

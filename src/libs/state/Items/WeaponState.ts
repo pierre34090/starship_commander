@@ -1,6 +1,7 @@
 // src/libs/state/Items/WeaponState.ts
 
 import type { DamageType } from '../../logic/combat/DamageType';
+import type { SubsystemType } from '../Ships/ShipSubsystems';
 
 export type WeaponState = {
   id: string;
@@ -9,7 +10,12 @@ export type WeaponState = {
   sprite: string;
 
   price: number;
+
   isActive: boolean;
+  target?: {
+    shipId: string;
+    subsystem: SubsystemType;
+  };
 
   damage: number;
   cooldown: number;              // cooldown duration (in rounds)

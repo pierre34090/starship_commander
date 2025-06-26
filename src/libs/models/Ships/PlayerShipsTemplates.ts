@@ -24,6 +24,7 @@ export const kestrel: ShipState = createPlayerShipState({
   currentShield: 50,
   currentArmor: 10,
   currentAmmo: 1000,
+  maxEnergy: 10,
   weapons: [
     createWeaponInstance(laserBlaster),
     createWeaponInstance(plasmaBomb),

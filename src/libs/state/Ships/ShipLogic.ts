@@ -1,19 +1,32 @@
 // src/libs/logic/Ships/ShipLogic.ts
+
+
+import type { BaseModuleBonuses, FlatAndMult } from '../Items/ModuleBonuses';
+import type { SubsystemType } from '../Ships/ShipSubsystems';
+
 import { DAMAGE_TYPES, ELEMENTAL_TYPES } from '../../logic/combat/DamageType';
 
 import { ShipState } from '../../state/Ships/ShipState';
 import { ShipEffectiveAttributes } from '../../state/Ships/ShipEffectiveAttributes';
-import type { BaseModuleBonuses, FlatAndMult } from '../Items/ModuleBonuses';
+import { getSubsystemEffectiveBonus } from './SubsystemLogic';
+
+
 
 // --- Effective computation ---
 
 export function computeEffectiveAttributes(ship: ShipState): ShipEffectiveAttributes {
   const base = ship.baseStats;
   const activeModules = ship.modules.filter((mod) => mod.isActive);
+  const allocation = ship.energyAllocation ?? {
+    shields: 0,
+    weapons: 0,
+    engines: 0,
+    targeting: 0,
+  };
+
 
   // --- Helpers ---
 
-  // Pour les bonus sans base (ex: regenShield, maxAmmo...)
   function scaledBonus(
     extractor: (b: BaseModuleBonuses) => FlatAndMult | undefined
   ): number {
@@ -27,7 +40,6 @@ export function computeEffectiveAttributes(ship: ShipState): ShipEffectiveAttrib
     return flat * (1 + mult);
   }
 
-  // Pour les bonus avec base stat (ex: baseHp, basePrecision...)
   function scaledBonusWithBase(
     extractor: (b: BaseModuleBonuses) => FlatAndMult | undefined,
     baseValue: number
@@ -62,20 +74,23 @@ export function computeEffectiveAttributes(ship: ShipState): ShipEffectiveAttrib
     ) as Record<T, number>;
   }
 
+
   // --- Computation ---
 
   return {
     maxHp: scaledBonusWithBase((b) => b.hp, base.baseHp),
-    maxShield: scaledBonusWithBase((b) => b.maxShield, base.baseShield),
+    maxShield: getSubsystemEffectiveBonus(ship, 'shields') *
+              scaledBonusWithBase((b) => b.maxShield, base.baseShield),
     maxArmor: scaledBonusWithBase((b) => b.armor, base.baseArmor),
 
-    regenShield: scaledBonus((b) => b.regenShield),
+    regenShield: getSubsystemEffectiveBonus(ship, 'shields') *
+                scaledBonus((b) => b.regenShield),
 
     globalDamage: scaledBonusWithBase((b) => b.globalDamage, base.baseGlobalDamage),
-    precision: scaledBonusWithBase((b) => b.precision, base.basePrecision),
-    evasion: scaledBonusWithBase((b) => b.evasion, base.baseEvasion),
-
-    maxEnergy: scaledBonus((b) => b.maxEnergy),
+    precision: getSubsystemEffectiveBonus(ship, 'targeting') *
+              scaledBonusWithBase((b) => b.precision, base.basePrecision),
+    evasion: getSubsystemEffectiveBonus(ship, 'engines') *
+            scaledBonusWithBase((b) => b.evasion, base.baseEvasion),
 
     regenAmmo: scaledBonus((b) => b.regenAmmo),
     maxAmmo: scaledBonus((b) => b.maxAmmo),
@@ -86,9 +101,28 @@ export function computeEffectiveAttributes(ship: ShipState): ShipEffectiveAttrib
     elementalDamage: scaledBonusByType((b) => b.elementalDamage, ELEMENTAL_TYPES),
     elementalEffectDuration: scaledBonusByType((b) => b.elementalEffectDuration, ELEMENTAL_TYPES),
   };
+
 }
 
+// Weapon target manager
 
+
+export function assignWeaponTarget(
+  ship: ShipState,
+  weaponId: string,
+  target: { shipId: string; subsystem: SubsystemType } | null
+): ShipState {
+  const weapons = ship.weapons.map((w) =>
+    w.id === weaponId
+      ? { ...w, target: target ?? undefined }
+      : w
+  );
+
+  return {
+    ...ship,
+    weapons,
+  };
+}
 
 
 // --- Ship wrapper ---
@@ -146,4 +180,5 @@ export function modifyArmor(
   const applied = after - before;
   return [{ ...ship, currentArmor: after }, applied];
 }
+
 

@@ -37,7 +37,7 @@ export function runCombatStep(
 
   const finalPlayer = applyEffectsAndRegen(playerAfter2);
   const finalEnemy = applyEffectsAndRegen(ennemyAfter2);
-
+  
   const defeated =
     isShipDead(finalEnemy) && target.status === 'alive'
       ? { ...finalEnemy, status: 'dead' as const }

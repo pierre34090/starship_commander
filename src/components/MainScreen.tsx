@@ -5,9 +5,11 @@ import PlayerShipPanel from './PlayerShipPanel';
 import CombatPanel from './CombatPanel';
 import EconomyPanel from './EconomyPanel';
 import { MessagePanel } from '../components/MessagePanel';
+import WeaponsPanel from "../components/WeaponsPanel";
 
-import { ShipDebugPanel } from './ShipDebugPanel';
+import { ShipDebugPanel } from './debugPanels/ShipDebugPanel';
 import { DisplayShipInfo } from './DisplayShipInfo';
+import SubsystemPanel from './SubsystemPanel';
 
 export default function MainScreen() {
   const context = useContext(GameContext);
@@ -23,8 +25,11 @@ export default function MainScreen() {
     <div className="main-screen-container">
       <div className="panel-grid">
         <PlayerShipPanel ship={ship} />
+        <WeaponsPanel ship={gameState.player_ship} />
         <CombatPanel />
         {nextEnemy && <DisplayShipInfo ship={nextEnemy} />}
+        <SubsystemPanel /> 
+        <WeaponsPanel ship={nextEnemy} />
         <MessagePanel />
       </div>
 

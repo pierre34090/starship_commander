@@ -3,8 +3,11 @@
 import { WeaponState } from '../../state/Items/WeaponState';
 import { ShipEffectiveAttributes } from '../../state/Ships/ShipEffectiveAttributes';
 import { getDamageMultiplierByTarget } from './DamageMultipliers';
+import { damageSubsystem } from '../../state/Ships/SubsystemLogic';
+
 import type { DamageType } from './DamageType';
 import type { ShipState } from '../../state/Ships/ShipState';
+import type { SubsystemType } from '../../state/Ships/ShipSubsystems';
 
 /**
  * Compute the hit chance of an attack based on attacker precision and defender evasion.
@@ -118,4 +121,23 @@ export function applyFlatDamageToShip(
     currentShield: newShield,
     currentHp: newHp,
   };
+}
+
+
+/**
+ * Applies flat damage to a subsystem *if* the shield is depleted.
+ * Used after applying global ship damage.
+ */
+export function applyFlatDamageToSubsystemIfShieldDown(
+  ship: ShipState,
+  damage: number,
+  weapon: WeaponState
+): ShipState {
+  const subsystem = weapon.target?.subsystem;
+  if (!subsystem) return ship;
+
+  const currentShield = ship.currentShield ?? 0;
+  if (currentShield > 0) return ship;
+
+  return damageSubsystem(ship, subsystem, damage);
 }

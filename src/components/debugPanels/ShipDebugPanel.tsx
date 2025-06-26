@@ -1,10 +1,10 @@
 // src/components/ShipDebugPanel.tsx
 
 import React from 'react';
-import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
-import type { ShipState } from '../libs/state/Ships/ShipState';
-import type { WeaponState } from '../libs/state/Items/WeaponState';
-import type { ModuleState } from '../libs/state/Items/ModuleState';
+import { computeEffectiveAttributes } from '../../libs/state/Ships/ShipLogic';
+import type { ShipState } from '../../libs/state/Ships/ShipState';
+import type { WeaponState } from '../../libs/state/Items/WeaponState';
+import type { ModuleState } from '../../libs/state/Items/ModuleState';
 
 export const ShipDebugPanel: React.FC<{ ship: ShipState }> = ({ ship }) => {
   const base = ship.baseStats;
@@ -21,6 +21,7 @@ export const ShipDebugPanel: React.FC<{ ship: ShipState }> = ({ ship }) => {
       <p>Shield: {ship.currentShield}</p>
       <p>Armor: {ship.currentArmor}</p>
       <p>Ammo: {ship.currentAmmo}</p>
+      <p>Energy: {ship.maxEnergy}</p>
 
       <h4>Base Stats</h4>
       <ul>
@@ -127,6 +128,15 @@ export const ShipDebugPanel: React.FC<{ ship: ShipState }> = ({ ship }) => {
           ))}
         </ul>
       )}
+      <h4>Subsystems</h4>
+      <ul>
+        {Object.entries(ship.subsystems).map(([key, subsystem]) => (
+          <li key={key}>
+            <strong>{key}</strong> — HP: {subsystem.currentHp}/{subsystem.maxHp}, Level: {subsystem.level}, Energy Allocated: {ship.energyAllocation[key as keyof typeof ship.energyAllocation]}
+          </li>
+        ))}
+      </ul>
+
     </div>
   );
 };
