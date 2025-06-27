@@ -1,0 +1,89 @@
+/* === Import police pixel rétro et palette === */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import './theme.css';
+
+/* === Reset de base === */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* === Style global de la page === */
+body {
+  font-family: var(--font-base);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-image: url('/sprites/backgrounds/galaxy.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  overflow: hidden;
+}
+
+/* === Héritage global forcé === */
+*, *::before, *::after {
+  font-family: inherit;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+/* === Typo générale === */
+h1, h2, h3, h4, h5 {
+  font-family: inherit;
+  font-weight: normal;
+  margin: 0;
+}
+
+/* === Inputs === */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: 1em;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #3a4a60;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4f627a;
+}
+
+/* === Bouton de jeu principal === */
+.game-button {
+  background-color: var(--color-bg);
+  color: var(--color-accent);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: bold;
+  padding: 6px 16px;
+  border: 2px solid var(--color-accent);
+  border-radius: 6px;
+  text-shadow: 0 0 3px var(--color-glow);
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-button:hover {
+  background-color: #002033;
+  box-shadow: 0 0 8px var(--color-glow);
+}
+
+.game-button:active {
+  background-color: #00101a;
+  box-shadow: inset 0 0 4px var(--color-glow);
+}

@@ -1,0 +1,9 @@
+:root {
+  --font-base: 'VT323', monospace;
+  --font-size-base: 18px;
+  --color-text: #e0e0e0;
+  --color-panel: rgba(0, 12, 24, 0.85);
+  --color-accent: #00ccff;
+  --color-glow: #00ccff;
+  --color-bg: #000c18;
+}

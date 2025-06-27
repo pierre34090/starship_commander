@@ -5,15 +5,15 @@ import { MessageProvider } from './contexts/MessageContext';
 
 import { initGameState } from './libs/state/GameState';
 import { initGameMetaState } from './libs/state/MetaGameState';
-import type { PlayerShipState } from './libs/state/Ships/PlayerShipState';
+import type { ShipState } from './libs/state/Ships/ShipState';
 import { allPlayerShips } from './libs/models/Ships/PlayerShipsTemplates';
 import { MessageBus } from './contexts/MessageContext';
 
-import GameOverScreen from './components/GameOverScreen';
-import WinScreen from './components/WinScreen';
-import StartScreen from './components/StartScreen';
-import MainScreen from './components/MainScreen';
-import GameLayout from './components/GameLayout';
+import GameOverScreen from './components/display/GameOverScreen';
+import WinScreen from './components/display/WinScreen';
+import StartScreen from './components/display/StartScreen';
+import GameLayout from './components/display/GameLayout';
+import GameScreen from './components/display/GameScreen';
 
 function GameContent() {
   const context = useContext(GameContext);
@@ -26,7 +26,7 @@ function GameContent() {
     setMetaState,
   } = context;
 
-  const startGame = (playerName: string, playerShip: PlayerShipState) => {
+  const startGame = (playerName: string, playerShip: ShipState) => {
     const initialState = initGameState(playerName, playerShip);
     setGameState(initialState);
   };
@@ -43,7 +43,7 @@ function GameContent() {
   if (metaState.gameOver) return <GameOverScreen onRestart={restartGame} />;
   if (metaState.gameWin) return <WinScreen onRestart={restartGame} />;
 
-  return <MainScreen />;
+  return <GameScreen />;
 }
 
 export default function GameContainer() {

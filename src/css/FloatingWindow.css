@@ -1,0 +1,32 @@
+.floating-window-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.floating-window {
+  background: #1a1a1a;
+  color: white;
+  padding: 20px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+.floating-close-button {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 22px;
+  color: white;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}

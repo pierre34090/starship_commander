@@ -60,7 +60,7 @@ export function runCombatStep(
   return handleStageProgression(withRewards, metaState);
 }
 
-function findNextEnemy(enemies: ShipState[]): ShipState | null {
+export function findNextEnemy(enemies: ShipState[]): ShipState | null {
   return enemies.find((e) => e.status === 'alive') ?? null;
 }
 

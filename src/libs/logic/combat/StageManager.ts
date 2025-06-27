@@ -18,7 +18,7 @@ export function advanceStage(
   gameState: GameState,
   metaState: GameMetaState
 ): [GameState, GameMetaState] {
-  const nextStage = metaState.currentStage + 1;
+  const nextStage = metaState.currentStageIndex + 1;
   const stageEnemies = generateEnemiesForStage(nextStage);
 
   MessageBus.send({
@@ -33,7 +33,7 @@ export function advanceStage(
     },
     {
       ...metaState,
-      currentStage: nextStage,
+      currentStageIndex: nextStage,
       gameOver: false,
       gameWin: false,
     },
@@ -71,7 +71,7 @@ export function handleStageProgression(
   const bossDead = boss?.status === 'dead';
 
   if (bossDead) {
-    if (metaState.currentStage >= LAST_STAGE_INDEX) {
+    if (metaState.currentStageIndex >= LAST_STAGE_INDEX) {
       return [syncedState, { ...metaState, gameWin: true }];
     }
     return advanceStage(syncedState, metaState);

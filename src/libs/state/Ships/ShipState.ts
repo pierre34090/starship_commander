@@ -1,14 +1,12 @@
 // src/libs/state/Ships/ShipState.ts
 
+import { v4 as uuidv4 } from 'uuid';
 import type { WeaponState } from '../Items/WeaponState';
 import type { ModuleState } from '../Items/ModuleState';
 import type { Subsystems, SubsystemType } from './ShipSubsystems';
 import type { ElementalEffect } from '../../logic/combat/DamageType';
-
-import { v4 as uuidv4 } from 'uuid';
-import { createShipBaseState, ShipBaseState } from './ShipBaseState';
 import { createSubsystems } from './ShipSubsystems';
-
+import { createShipBaseState, ShipBaseState } from './ShipBaseState';
 
 export type ShipRole = 'player' | 'enemy' | 'boss';
 export type EnemyStatus = 'alive' | 'dead' | 'skipped';
@@ -48,44 +46,45 @@ export type ShipState = {
   creditsBounty?: number;
 };
 
+// Valeurs par défaut hors id, baseStats et subsystems (qui restent créés dynamiquement)
+export const defaultShip: Omit<ShipState, 'id' | 'baseStats' | 'subsystems'> = {
+  role: 'enemy',
+  name: '',
+  description: '',
+  sprite: '',
+  currentHp: 0,
+  currentShield: 0,
+  currentArmor: 0,
+  currentAmmo: 0,
+  weapons: [],
+  modules: [],
+  maxEnergy: 5,
+  energyAllocation: {
+    shields: 0,
+    weapons: 0,
+    engines: 0,
+    targeting: 0,
+  },
+  statusEffects: [],
+  // les autres champs optionnels sont laissés undefined par défaut
+};
+
 /**
  * Generic ShipState creator with optional overrides.
  */
 export function createShipState(overrides: Partial<ShipState> = {}): ShipState {
+  const {
+    baseStats,
+    subsystems,
+    id,
+    ...restOverrides
+  } = overrides;
+
   return {
-    id: overrides.id ?? uuidv4(),
-    role: overrides.role ?? 'enemy',
-
-    name: overrides.name ?? '',
-    description: overrides.description ?? '',
-    sprite: overrides.sprite ?? '',
-
-    baseStats: createShipBaseState(overrides.baseStats ?? {}),
-    currentHp: overrides.currentHp ?? 0,
-    currentShield: overrides.currentShield ?? 0,
-    currentArmor: overrides.currentArmor ?? 0,
-    currentAmmo: overrides.currentAmmo ?? 0,
-
-    weapons: overrides.weapons ?? [],
-    modules: overrides.modules ?? [],
-
-    maxEnergy: overrides.maxEnergy ?? 5,
-    subsystems: createSubsystems(overrides.subsystems ?? {}),
-    energyAllocation: {
-      shields: 0,
-      weapons: 0,
-      engines: 0,
-      targeting: 0,
-    },
-
-    statusEffects: overrides.statusEffects ?? [],
-
-    xp: overrides.xp,
-    level: overrides.level,
-
-    status: overrides.status,
-    behavior: overrides.behavior,
-    xpBounty: overrides.xpBounty,
-    creditsBounty: overrides.creditsBounty,
+    id: id ?? uuidv4(),
+    baseStats: createShipBaseState(baseStats ?? {}),
+    subsystems: createSubsystems(subsystems ?? {}),
+    ...defaultShip,
+    ...restOverrides,
   };
 }

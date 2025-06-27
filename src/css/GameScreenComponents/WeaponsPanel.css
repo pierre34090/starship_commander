@@ -1,0 +1,36 @@
+.weapons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.weapon-card {
+  background-color: var(--color-panel);
+  border: 2px solid var(--color-panel-border);
+  border-radius: var(--radius-xl);
+  padding: 8px;
+  width: 200px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.weapon-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 6px var(--color-glow);
+}
+
+.weapon-card.active {
+  border-color: var(--color-accent);
+  background-color: #002a1a;
+}
+
+.weapon-card.inactive {
+  opacity: 0.6;
+}
+
+.weapon-panel-title {
+  font-size: 1.2em;
+  color: var(--color-accent);
+  margin-bottom: 8px;
+}

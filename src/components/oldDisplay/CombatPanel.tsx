@@ -1,9 +1,9 @@
 // src/components/CombatPanel.tsx
 
 import React, { useContext } from 'react';
-import { GameContext } from '../contexts/GameContext';
-import { runCombatStep } from '../libs/logic/combat/RoundManager';
-import { computeEffectiveAttributes } from '../libs/state/Ships/ShipLogic';
+import { GameContext } from '../../contexts/GameContext';
+import { runCombatStep } from '../../libs/logic/combat/RoundManager';
+import { computeEffectiveAttributes } from '../../libs/state/Ships/ShipLogic';
 
 export default function CombatPanel() {
   const context = useContext(GameContext);

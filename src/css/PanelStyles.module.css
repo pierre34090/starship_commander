@@ -1,0 +1,9 @@
+.panel {
+  background-color: rgba(30, 30, 30, 0.8);
+  border: 1px solid white;
+  border-radius: 12px;  /* ✅ Ajout ici */
+  box-sizing: border-box;
+  padding: 8px;
+  color: white;
+  font-family: inherit;
+}

@@ -3,5 +3,9 @@
 import GameContainer from './GameContainer';
 
 export default function App() {
-  return <GameContainer />;
+  return (
+    <>
+      <GameContainer />
+    </>
+  );
 }

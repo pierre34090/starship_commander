@@ -1,8 +1,10 @@
+// src/libs/state/Items/ModuleState.ts
+
 import { v4 as uuidv4 } from 'uuid';
 import type { BaseModuleBonuses } from './ModuleBonuses';
 
 export type ModuleState = {
-  id: string;                 // Identifiant unique
+  id: string;
   name: string;
   description: string;
   sprite: string;
@@ -14,20 +16,25 @@ export type ModuleState = {
   bonuses?: BaseModuleBonuses;
 };
 
+export const defaultModule: Omit<ModuleState, 'id'> = {
+  name: '',
+  description: '',
+  sprite: '',
+  price: 0,
+  isActive: false,
+  energyConsumption: 0,
+  bonuses: undefined,
+};
+
 /**
- * Factory pour créer un ModuleState avec valeurs par défaut et id généré.
+ * Factory to create a ModuleState with optional overrides and auto-generated ID.
  */
 export function createModuleState(
   overrides: Partial<ModuleState> = {}
 ): ModuleState {
   return {
     id: overrides.id ?? uuidv4(),
-    name: overrides.name ?? '',
-    description: overrides.description ?? '',
-    sprite: overrides.sprite ?? '',
-    price: overrides.price ?? 0,
-    isActive: overrides.isActive ?? false,
-    energyConsumption: overrides.energyConsumption ?? 0,
-    bonuses: overrides.bonuses,
+    ...defaultModule,
+    ...overrides,
   };
 }

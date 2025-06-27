@@ -1,15 +1,17 @@
 import { useContext } from 'react';
-import { GameContext } from '../contexts/GameContext';
+import { GameContext } from '../../contexts/GameContext';
 
-import PlayerShipPanel from './PlayerShipPanel';
+import { findNextEnemy } from '../../libs/logic/combat/RoundManager';
+
+import PlayerShipPanel from '../PlayerShipPanel';
 import CombatPanel from './CombatPanel';
 import EconomyPanel from './EconomyPanel';
-import { MessagePanel } from '../components/MessagePanel';
-import WeaponsPanel from "../components/WeaponsPanel";
+import { MessagePanel } from '../MessagePanel';
+import WeaponsPanel from "./WeaponsPanel";
 
-import { ShipDebugPanel } from './debugPanels/ShipDebugPanel';
+import { ShipDebugPanel } from '../debugPanels/ShipDebugPanel';
 import { DisplayShipInfo } from './DisplayShipInfo';
-import SubsystemPanel from './SubsystemPanel';
+import SubsystemPanel from '../SubsystemPanel';
 
 export default function MainScreen() {
   const context = useContext(GameContext);
@@ -19,7 +21,7 @@ export default function MainScreen() {
   const ship = gameState.player_ship;
 
   // Trouver l'ennemi courant
-  const nextEnemy = gameState.stageEnemies.find(e => e.status === 'alive') ?? null;
+  const nextEnemy = findNextEnemy(gameState.stageEnemies);
 
   return (
     <div className="main-screen-container">

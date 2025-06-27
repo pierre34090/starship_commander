@@ -1,16 +1,16 @@
 // src/components/WeaponsPanel.tsx
 
 import React, { useContext } from 'react';
-import { GameContext } from '../contexts/GameContext';
-import { assignWeaponTarget } from '../libs/state/Ships/ShipLogic';
+import { GameContext } from '../../contexts/GameContext';
+import { assignWeaponTarget } from '../../libs/state/Ships/ShipLogic';
 import {
   canAllocateEnergy,
   allocateEnergyPoint,
   deallocateEnergyPoint
-} from '../libs/state/Ships/SubsystemLogic';
-import type { WeaponState } from '../libs/state/Items/WeaponState';
-import type { SubsystemType } from '../libs/state/Ships/ShipSubsystems';
-import type { ShipState } from '../libs/state/Ships/ShipState';
+} from '../../libs/state/Ships/SubsystemLogic';
+import type { WeaponState } from '../../libs/state/Items/WeaponState';
+import type { SubsystemType } from '../../libs/state/Ships/ShipSubsystems';
+import type { ShipState } from '../../libs/state/Ships/ShipState';
 
 interface ShipPanelProps {
   ship: ShipState;

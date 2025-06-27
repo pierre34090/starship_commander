@@ -27,25 +27,31 @@ export type WeaponState = {
   elementalEffectProbability: number;
 };
 
+
+export const defaultWeapon: WeaponState = {
+  id: '',
+  name: '',
+  description: '',
+  sprite: '',
+  price: 0,
+  isActive: false,
+  damage: 0,
+  cooldown: 0,
+  cooldownRemaining: 0,
+  type: 'normal',
+  ammoConsumption: 0,
+  energyConsumption: 0,
+  elementalEffectProbability: 0,
+};
+
 /**
- * Factory pour créer un WeaponState avec valeurs par défaut
+ * Factory to create a WeaponState with optional overrides.
  */
 export function createWeaponState(
   overrides: Partial<WeaponState> = {}
 ): WeaponState {
   return {
-    id: overrides.id ?? '',
-    name: overrides.name ?? '',
-    description: overrides.description ?? '',
-    sprite: overrides.sprite ?? '',
-    price: overrides.price ?? 0,
-    isActive: overrides.isActive ?? false,
-    damage: overrides.damage ?? 0,
-    cooldown: overrides.cooldown ?? 0,
-    cooldownRemaining: overrides.cooldownRemaining ?? 0,
-    type: overrides.type ?? 'normal',
-    ammoConsumption: overrides.ammoConsumption ?? 0,
-    energyConsumption: overrides.energyConsumption ?? 0,
-    elementalEffectProbability: overrides.elementalEffectProbability ?? 0,
+    ...defaultWeapon,
+    ...overrides,
   };
 }
