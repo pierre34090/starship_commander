@@ -10,6 +10,9 @@ type GameContextType = {
   setGameState: React.Dispatch<React.SetStateAction<GameState | null>>;
   metaState: GameMetaState;
   setMetaState: React.Dispatch<React.SetStateAction<GameMetaState>>;
+
+  targetingWeaponId: string | null;
+  setTargetingWeaponId: (id: string | null) => void;
 };
 
 export const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -21,9 +24,19 @@ type GameProviderProps = {
 export function GameProvider({ children }: GameProviderProps) {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [metaState, setMetaState] = useState<GameMetaState>(initGameMetaState());
+  const [targetingWeaponId, setTargetingWeaponId] = useState<string | null>(null);
 
   return (
-    <GameContext.Provider value={{ gameState, setGameState, metaState, setMetaState }}>
+    <GameContext.Provider
+      value={{
+        gameState,
+        setGameState,
+        metaState,
+        setMetaState,
+        targetingWeaponId,
+        setTargetingWeaponId,
+      }}
+    >
       {children}
     </GameContext.Provider>
   );

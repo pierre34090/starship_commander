@@ -4,7 +4,7 @@ import { createPlayerShipState } from '../../state/Ships/ShipFactory';
 import { createWeaponInstance } from '../Items/WeaponFactory';
 import { createModuleInstance } from '../Items/ModuleFactory';
 import { energyCore } from '../Items/ModulesTemplates';
-import { laserBlaster, plasmaBomb } from '../Items/WeaponsTemplates';
+import { laserBlaster, plasmaBomb, acidSprayer } from '../Items/WeaponsTemplates';
 import { createSubsystems } from '../../state/Ships/ShipSubsystems';
 import { createShipBaseState } from '../../state/Ships/ShipBaseState';
 
@@ -23,16 +23,27 @@ export const kestrel: ShipState = createPlayerShipState({
   currentHp: 300,
   currentShield: 50,
   currentArmor: 10,
-  currentAmmo: 1000,
+  currentAmmo: 260,
   maxEnergy: 10,
   weapons: [
     createWeaponInstance(laserBlaster),
+    createWeaponInstance(plasmaBomb),
+    createWeaponInstance(acidSprayer),
+    createWeaponInstance(plasmaBomb),
+    createWeaponInstance(plasmaBomb),
     createWeaponInstance(plasmaBomb),
   ],
   modules: [
     createModuleInstance(energyCore),
   ],
-  subsystems: createSubsystems(),
+  subsystems: createSubsystems({
+    shields: { level: 5 },
+    weapons: { level: 6 },
+    engines: { level: 3 },
+    targeting: { level: 4 }, 
+    spy: { level: 5 },
+    reactor: { level: 5 },
+  }),
   statusEffects: [],
   xp: 0,
   level: 1,

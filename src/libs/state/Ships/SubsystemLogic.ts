@@ -57,34 +57,55 @@ export function updateSubsystemMaxHp(
 }
 
 /**
- * Désactive les armes excédentaires si leur nombre actif dépasse les slots disponibles.
- * On désactive de droite à gauche (fin du tableau).
+ * Désactive des armes pour compenser une perte d’énergie.
+ * On retire exactement la consommation totale des armes désactivées,
+ * moins ce qui a déjà été retiré par deallocateEnergyPoint.
  */
-export function enforceWeaponSlotLimit(ship: ShipState): ShipState {
-  const allocatedSlots = ship.energyAllocation['weapons'] ?? 0;
-  const activeWeapons = ship.weapons.filter((w) => w.isActive);
+export function enforceWeaponEnergyLimit(
+  ship: ShipState,
+  amountRemoved: number
+): ShipState {
+  let remainingToDisable = amountRemoved;
+  let totalDisabledEnergy = 0;
+  const updatedWeapons: typeof ship.weapons = [];
 
-  if (activeWeapons.length <= allocatedSlots) return ship;
+  // On désactive de droite à gauche
+  for (let i = ship.weapons.length - 1; i >= 0; i--) {
+    const weapon = ship.weapons[i];
 
-  const weapons = [...ship.weapons];
-  let excess = activeWeapons.length - allocatedSlots;
+    if (weapon.isActive && remainingToDisable > 0) {
+      remainingToDisable -= weapon.energyConsumption;
+      totalDisabledEnergy += weapon.energyConsumption;
 
-  for (let i = weapons.length - 1; i >= 0 && excess > 0; i--) {
-    if (weapons[i].isActive) {
-      weapons[i] = { ...weapons[i], isActive: false };
-      excess--;
+      updatedWeapons.unshift({
+        ...weapon,
+        isActive: false,
+      });
+    } else {
+      updatedWeapons.unshift(weapon);
     }
   }
 
+  const extraToRemove = Math.max(0, totalDisabledEnergy - amountRemoved);
+  const currentAlloc = ship.energyAllocation['weapons'] ?? 0;
+  const newAlloc = Math.max(0, currentAlloc - extraToRemove);
+
   return {
     ...ship,
-    weapons,
+    weapons: updatedWeapons,
+    energyAllocation: {
+      ...ship.energyAllocation,
+      weapons: newAlloc,
+    },
   };
 }
 
 
+
+
 /**
- * Inflige des dégâts à un sous-système, et ajuste l'allocation d'énergie si nécessaire.
+ * Inflige des dégâts à un sous-système, met à jour les HP, 
+ * et réduit l’allocation d’énergie si nécessaire.
  */
 export function damageSubsystem(
   ship: ShipState,
@@ -104,19 +125,28 @@ export function damageSubsystem(
 
   const maxAvailable = getAvailableSlots(updatedSubsystems, type);
   const currentAlloc = ship.energyAllocation[type] ?? 0;
-  const adjustedAlloc = Math.min(currentAlloc, maxAvailable);
 
-  const updatedAllocation = {
-    ...ship.energyAllocation,
-    [type]: adjustedAlloc,
-  };
+  const deltaToRemove = currentAlloc > maxAvailable
+    ? currentAlloc - maxAvailable
+    : 0;
 
-  return {
+  const partiallyUpdatedShip: ShipState = {
     ...ship,
     subsystems: updatedSubsystems,
-    energyAllocation: updatedAllocation,
   };
+
+  // On passe par la fonction centrale
+  return deltaToRemove > 0
+    ? deallocateEnergyPoint(partiallyUpdatedShip, type, deltaToRemove)
+    : {
+        ...partiallyUpdatedShip,
+        energyAllocation: {
+          ...partiallyUpdatedShip.energyAllocation,
+          [type]: currentAlloc,
+        },
+      };
 }
+
 
 /**
  * Vérifie si on peut allouer `amount` points au sous-système `type`.
@@ -163,21 +193,29 @@ export function allocateEnergyPoint(
 }
 
 /**
- * Retire un point d’énergie alloué à un sous-système.
- * Ne fait rien si le sous-système est déjà à 0.
+ * Retire un ou plusieurs points d’énergie alloués à un sous-système.
+ * Si le sous-système est "weapons", désactive les armes excédentaires.
  */
 export function deallocateEnergyPoint(
   ship: ShipState,
-  type: SubsystemType
+  subsystem: SubsystemType,
+  amount: number = 1
 ): ShipState {
-  const current = ship.energyAllocation[type] ?? 0;
-  if (current <= 0) return ship;
+  const current = ship.energyAllocation[subsystem] ?? 0;
+  const newAllocation = Math.max(0, current - amount);
 
-  return {
+  const updatedShip: ShipState = {
     ...ship,
     energyAllocation: {
       ...ship.energyAllocation,
-      [type]: current - 1,
+      [subsystem]: newAllocation,
     },
   };
+
+  // Cas particulier : ajuster les armes après retrait d'énergie
+  if (subsystem === 'weapons') {
+    return enforceWeaponEnergyLimit(updatedShip, amount);
+  }
+
+  return updatedShip;
 }

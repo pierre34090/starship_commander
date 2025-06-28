@@ -22,3 +22,10 @@ Et en gros le jouer va avoir plus d'arme et de module que ce qu'il peut equiper 
 
 -mecanique d'interet sur la thune non dépensée à la tft
 -Buidl greed marcchand: augmentation d'income cumulative tant que t'achetes rien a la boutique
+
+
+mecanique resident evil sur les balles. on est radin perma stress de balle. on fait des stocke et on fume les gros enemis en lacahnt la foudre
+
+a chaque level on gagne de l'enegrie et on choisit d'upgrade un module parmi 2.
+
+Le reactor ajoute des points dédiés aux modules.

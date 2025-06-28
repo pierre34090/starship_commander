@@ -1,13 +1,9 @@
 // src/components/GameScreenComponents/WeaponsPanel.tsx
 
-import React, { useContext } from 'react';
-
-// ✅ Module CSS importé correctement
-import styles from '../../../css/PanelStyles.module.css';
+import React, { useContext, useState } from 'react';
 import '../../../css/GameScreenComponents/WeaponsPanel.css';
 
 import { GameContext } from '../../../contexts/GameContext';
-import { assignWeaponTarget } from '../../../libs/state/Ships/ShipLogic';
 import {
   canAllocateEnergy,
   allocateEnergyPoint,
@@ -15,8 +11,10 @@ import {
 } from '../../../libs/state/Ships/SubsystemLogic';
 
 import type { WeaponState } from '../../../libs/state/Items/WeaponState';
-import type { SubsystemType } from '../../../libs/state/Ships/ShipSubsystems';
 import type { ShipState } from '../../../libs/state/Ships/ShipState';
+
+import DisplayWeapon from './WeaponTile';
+import { computeEffectiveAttributes } from '../../../libs/state/Ships/ShipLogic';
 
 interface ShipPanelProps {
   ship: ShipState;
@@ -29,8 +27,13 @@ const WeaponsPanel: React.FC<ShipPanelProps> = ({ ship }) => {
   const { gameState, setGameState } = context;
   if (!gameState) return null;
 
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
   const isPlayer = ship.id === gameState.player_ship.id;
-  const currentEnemy = gameState.stageEnemies.find(e => e.status === 'alive');
+  const stats = computeEffectiveAttributes(ship);
+  const ammoRatio = Math.min(ship.currentAmmo / stats.maxAmmo, 1);
 
   const updateShipInGameState = (updatedShip: ShipState) => {
     if (isPlayer) {
@@ -43,81 +46,103 @@ const WeaponsPanel: React.FC<ShipPanelProps> = ({ ship }) => {
     }
   };
 
+  const swapWeapons = (fromIndex: number, toIndex: number) => {
+    const newWeapons = [...ship.weapons];
+    const [moved] = newWeapons.splice(fromIndex, 1);
+    newWeapons.splice(toIndex, 0, moved);
+    updateShipInGameState({ ...ship, weapons: newWeapons });
+  };
+
   const handleLeftClick = (weapon: WeaponState) => {
-    if (weapon.isActive && currentEnemy) {
-      const updatedShip = assignWeaponTarget(ship, weapon.id, {
-        shipId: currentEnemy.id,
-        subsystem: 'shields',
-      });
-      updateShipInGameState(updatedShip);
-    } else if (canAllocateEnergy(ship, 'weapons', weapon.energyConsumption)) {
-      const updatedShip = allocateEnergyPoint(ship, 'weapons', weapon.energyConsumption);
-      const updatedWeapons = updatedShip.weapons.map((w) =>
-        w.id === weapon.id ? { ...w, isActive: true } : w
-      );
-      updateShipInGameState({ ...updatedShip, weapons: updatedWeapons });
-    }
+    if (weapon.isActive) return;
+    if (!canAllocateEnergy(ship, 'weapons', weapon.energyConsumption)) return;
+
+    const updatedShip = allocateEnergyPoint(ship, 'weapons', weapon.energyConsumption);
+    const updatedWeapons = updatedShip.weapons.map((w) =>
+      w.id === weapon.id ? { ...w, isActive: true } : w
+    );
+    updateShipInGameState({ ...updatedShip, weapons: updatedWeapons });
   };
 
   const handleRightClick = (e: React.MouseEvent, weapon: WeaponState) => {
     e.preventDefault();
     if (!weapon.isActive) return;
 
-    const updatedShip = deallocateEnergyPoint(ship, 'weapons');
+    const updatedShip = deallocateEnergyPoint(ship, 'weapons', weapon.energyConsumption);
     const updatedWeapons = updatedShip.weapons.map((w) =>
       w.id === weapon.id ? { ...w, isActive: false } : w
     );
     updateShipInGameState({ ...updatedShip, weapons: updatedWeapons });
   };
 
-  const handleTargetChange = (weaponId: string, value: SubsystemType) => {
-    if (!currentEnemy) return;
-
-    const updatedWeapons = ship.weapons.map((w) =>
-      w.id === weaponId
-        ? {
-            ...w,
-            target: {
-              shipId: currentEnemy.id,
-              subsystem: value,
-            },
-          }
-        : w
-    );
-
-    updateShipInGameState({ ...ship, weapons: updatedWeapons });
-  };
-
   return (
-    <div className={styles.panel}>
-      <h3 className="weapon-panel-title">Weapons</h3>
-      <div className="weapons-container">
-        {(ship.weapons ?? []).map((weapon) => (
-          <div
+    <div
+      className="weapons-panel-wrapper"
+      onMouseMove={(e) => setMousePosition({ x: e.clientX, y: e.clientY })}
+      onMouseLeave={() => setDraggedIndex(null)}
+    >
+      <div className="weapons-grid">
+        {(ship.weapons ?? []).map((weapon, index) => (
+          <DisplayWeapon
             key={weapon.id}
-            onClick={() => handleLeftClick(weapon)}
-            onContextMenu={(e) => handleRightClick(e, weapon)}
-            className={`weapon-card ${weapon.isActive ? 'active' : 'inactive'}`}
-          >
-            <strong>{weapon.name}</strong>
-            <p>{weapon.description}</p>
-            <p>⚡ {weapon.energyConsumption} | ⏳ {weapon.cooldownRemaining}</p>
-            {weapon.isActive && currentEnemy && (
-              <select
-                value={weapon.target?.subsystem ?? ''}
-                onChange={(e) =>
-                  handleTargetChange(weapon.id, e.target.value as SubsystemType)
-                }
-              >
-                <option value="">-- Target --</option>
-                {(['shields', 'weapons', 'engines', 'targeting'] as SubsystemType[]).map((sub) => (
-                  <option key={sub} value={sub}>{sub}</option>
-                ))}
-              </select>
-            )}
-          </div>
+            weapon={weapon}
+            onLeftClick={() => handleLeftClick(weapon)}
+            onRightClick={(e) => handleRightClick(e, weapon)}
+            index={index}
+            draggedIndex={draggedIndex}
+            setDraggedIndex={setDraggedIndex}
+            onDrop={(targetIndex) => {
+              if (draggedIndex !== null && draggedIndex !== targetIndex) {
+                swapWeapons(draggedIndex, targetIndex);
+              }
+              setDraggedIndex(null);
+            }}
+            onStartDrag={(offset) => setDragOffset(offset)}
+          />
         ))}
       </div>
+
+      <div
+        className="ammo-bar-wrapper"
+        title={`Ammo: ${ship.currentAmmo} / ${stats.maxAmmo}`}
+      >
+        <div className="bar-background vertical">
+          <div
+            className="bar-fill-ammo"
+            style={{ height: `${ammoRatio * 100}%` }}
+          />
+        </div>
+        <img
+          src="/sprites/weapons/ammo.png"
+          alt="ammo"
+          className="ammo-icon"
+        />
+      </div>
+
+      {draggedIndex !== null && ship.weapons[draggedIndex] && (
+        <div
+          className="weapon-drag-preview"
+          style={{
+            position: 'fixed',
+            top: mousePosition.y - dragOffset.y,
+            left: mousePosition.x - dragOffset.x,
+            pointerEvents: 'none',
+            opacity: 0.95,
+            zIndex: 1000,
+          }}
+        >
+          <DisplayWeapon
+            weapon={ship.weapons[draggedIndex]}
+            onLeftClick={() => {}}
+            onRightClick={() => {}}
+            index={draggedIndex}
+            draggedIndex={null}
+            setDraggedIndex={() => {}}
+            onDrop={() => {}}
+            isPreview={true}
+          />
+        </div>
+      )}
     </div>
   );
 };

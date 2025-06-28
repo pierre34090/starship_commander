@@ -9,6 +9,10 @@ import '../../css/GameScreen.css';
 import { StatusPanel } from './GameScreenComponents/StatusPanel';
 import ShopModulePanel from './GameScreenComponents/ShopModulePanel';
 import WeaponsPanel from './GameScreenComponents/WeaponsPanel';
+import SubsystemPanel from './GameScreenComponents/SubsystemPanel';
+import EnemyPanel from './GameScreenComponents/EnemyPanel';
+import PauseControlPanel from './GameScreenComponents/PauseControlPanel';
+
 
 export default function GameScreen() {
   const context = useContext(GameContext);
@@ -28,7 +32,7 @@ export default function GameScreen() {
               <StatusPanel ship={ship} />
             </div>
             <div className={`pause-controls ${styles.panel}`}>
-              PauseControlPanel
+              <PauseControlPanel />
             </div>
           </div>
 
@@ -45,17 +49,17 @@ export default function GameScreen() {
           {/* Bottom */}
           <div className="player-bottom">
             <div className={`subsystems ${styles.panel}`}>
-              SubsystemPanel
+              <SubsystemPanel ship={ship} /> {/* ✅ intégré ici */}
             </div>
             <div className={`weapons ${styles.panel}`}>
-              <WeaponsPanel ship={ship} /> {/* ✅ Intégré ici */}
+              <WeaponsPanel ship={ship} />
             </div>
           </div>
         </div>
 
         {/* Bloc ennemi (1/3) */}
         <div className={`enemy-panel ${styles.panel}`}>
-          EnemyPanel
+          <EnemyPanel />
         </div>
       </div>
     </div>

@@ -1,29 +1,29 @@
-/* src/css/GameScreenComponents/WeaponsPanel.css */
+/* src/css/GameScreenComponents/SubsystemPanel.css */
 
-.weapons-panel-wrapper {
+.subsystem-panel-wrapper {
   display: flex;
   flex-direction: row;
   align-items: stretch;
   height: 100%;
-  gap: 0px;
+  gap: 0px; /* aucun espace horizontal artificiel */
 }
 
-.weapons-grid {
+.subsystems-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
+  gap: 8px;
   padding: 4px;
   flex-grow: 1;
 }
 
-.ammo-bar-wrapper {
+.energy-bar-wrapper {
   width: 18px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 6px 2px;
-  margin-right: 6px;
+  margin-right: 6px; /* éloigne un peu la barre du bord droit */
   box-sizing: border-box;
 }
 
@@ -39,16 +39,15 @@
   box-shadow: inset 0 0 2px #000;
 }
 
-.bar-fill-ammo {
-  background: linear-gradient(to top, #7a4318, #cc7a29, #f4b44d);
+.bar-fill-energy {
+  background: linear-gradient(to top, #facc15, #eab308);
   width: 100%;
   transition: height 0.3s ease;
   min-height: 2px;
 }
 
-.ammo-icon {
-  width: 14px;
-  height: 14px;
+.energy-icon {
+  width: 24px;
+  height: 20px;
   margin-top: 4px;
-  image-rendering: pixelated;
 }

@@ -6,7 +6,9 @@ export type SubsystemType =
   | 'shields'
   | 'weapons'
   | 'engines'
-  | 'targeting';
+  | 'targeting' // augmente la precision 
+  | 'spy' // ca affiche les info de l'enemi jsu'a arriver a un eqivalent d'info joueur
+  | 'reactor'; // ca ajoute dee spoints pour equiper desd modules
 
 export type ShipSubsystemState = {
   level: number;
@@ -31,8 +33,8 @@ export function createShipSubsystemState(
   const perPoint = overrides.hpPerLevel ?? 20;
   return {
     level: overrides.level ?? 1,
-    currentHp: overrides.currentHp ?? perPoint,
-    maxHp: overrides.maxHp ?? perPoint,
+    currentHp: overrides.currentHp ?? ((overrides.level ?? 1) * perPoint),
+    maxHp: overrides.maxHp ?? ((overrides.level ?? 1) * perPoint),
     isDisabled: overrides.isDisabled ?? false,
     hpPerLevel: perPoint,
     bonusPerLevel: overrides.bonusPerLevel ?? 0.1,
@@ -51,6 +53,8 @@ export function createSubsystems(
     weapons: createShipSubsystemState(overrides.weapons ?? {}),
     engines: createShipSubsystemState(overrides.engines ?? {}),
     targeting: createShipSubsystemState(overrides.targeting ?? {}),
+    spy: createShipSubsystemState(overrides.spy ?? {}),
+    reactor: createShipSubsystemState(overrides.reactor ?? {}),
   };
 }
 
