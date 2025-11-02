@@ -1,0 +1,27 @@
+/* src/css/GameScreenComponents/EnemyPanel.css */
+
+.enemy-panel-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.enemy-top,
+.enemy-bottom {
+  height: 200px; /* 25% of 800px */
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.enemy-sprite {
+  height: 400px; /* 50% of 800px */
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.spy-warning {
+  color: #aaa;
+  font-style: italic;
+  text-align: center;
+  padding: 12px;
+}

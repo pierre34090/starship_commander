@@ -1,0 +1,80 @@
+import type { ShipState } from '../../state/Ships/ShipState';
+import { createPlayerShipState } from '../../state/Ships/ShipFactory';
+
+import { createWeaponInstance } from '../Items/WeaponFactory';
+import { createModuleInstance } from '../Items/ModuleFactory';
+import { energyCore } from '../Items/ModulesTemplates';
+import { laserBlaster, plasmaBomb, acidSprayer } from '../Items/WeaponsTemplates';
+import { createSubsystems } from '../../state/Ships/ShipSubsystems';
+import { createShipBaseState } from '../../state/Ships/ShipBaseState';
+
+export const kestrel: ShipState = createPlayerShipState({
+  name: "Kestrel",
+  description: "Classic fighter.",
+  sprite: "/sprites/vessels/kestrel.png",
+  baseStats: createShipBaseState({
+    baseHp: 300,
+    baseShield: 50,
+    baseArmor: 10,
+    baseGlobalDamage: 0,
+    basePrecision: 0.9,
+    baseEvasion: 0.05,
+  }),
+  currentHp: 300,
+  currentShield: 50,
+  currentArmor: 10,
+  currentAmmo: 260,
+  maxEnergy: 10,
+  weapons: [
+    createWeaponInstance(laserBlaster),
+    createWeaponInstance(plasmaBomb),
+    createWeaponInstance(acidSprayer),
+    createWeaponInstance(plasmaBomb),
+    createWeaponInstance(plasmaBomb),
+    createWeaponInstance(plasmaBomb),
+  ],
+  modules: [
+    createModuleInstance(energyCore),
+  ],
+  subsystems: createSubsystems({
+    shields: { level: 5 },
+    weapons: { level: 6 },
+    engines: { level: 3 },
+    targeting: { level: 4 }, 
+    spy: { level: 5 },
+    reactor: { level: 5 },
+  }),
+  statusEffects: [],
+  xp: 0,
+  level: 1,
+});
+
+export const falcon: ShipState = createPlayerShipState({
+  name: "Falcon",
+  description: "Fast and fragile.",
+  sprite: "/sprites/vessels/player_ship.png",
+  baseStats: createShipBaseState({
+    baseHp: 150,
+    baseShield: 30,
+    baseArmor: 3,
+    baseGlobalDamage: 0,
+    basePrecision: 0.2,
+    baseEvasion: 0.2,
+  }),
+  currentHp: 150,
+  currentShield: 30,
+  currentArmor: 3,
+  currentAmmo: 100,
+  weapons: [
+    createWeaponInstance(laserBlaster),
+  ],
+  modules: [
+    createModuleInstance(energyCore),
+  ],
+  subsystems: createSubsystems(),
+  statusEffects: [],
+  xp: 0,
+  level: 1,
+});
+
+export const allPlayerShips: ShipState[] = [kestrel, falcon];

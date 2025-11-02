@@ -1,21 +1,13 @@
-// src/index.tsx
-import React from "react";
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
+//src/main.tsx
 
-import App from "./App";
-import { GameProvider } from "./contexts/GameContext";  // ← assure-toi du bon chemin
+import './css/global.css';
 
-const container = document.getElementById("root");
-if (!container) {
-  throw new Error("Failed to find root element");
-}
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
 
-createRoot(container as HTMLElement).render(
-  <StrictMode>
-    <GameProvider>       {/* ← ici on wrappe */}
-      <App />
-    </GameProvider>
-  </StrictMode>
-);
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)

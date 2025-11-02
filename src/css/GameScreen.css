@@ -1,0 +1,58 @@
+/* src/css/GameScreen.css */
+
+.gamescreen {
+  width: 1200px;
+  height: 800px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.enemy-panel {
+  width: 33.33%;
+  height: 100%;
+}
+
+.player-panel {
+  width: 66.66%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.player-top,
+.player-bottom {
+  height: 25%;
+  display: flex;
+  gap: 8px;
+}
+
+.player-middle {
+  height: 50%;
+  display: flex;
+  gap: 8px;
+}
+
+.player-status,
+.pause-controls,
+.subsystems,
+.weapons {
+  width: 50%;
+}
+
+.shop-modules {
+  width: 25%;
+}
+
+.player-sprite {
+  width: 75%;
+}
+
+/* Optional scaling for huge screens */
+@media (min-width: 2560px) {
+  .gamescreen {
+    transform: scale(1.5);
+    transform-origin: top left;
+  }
+}

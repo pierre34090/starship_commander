@@ -1,0 +1,134 @@
+/* src/style.css */
+
+
+
+
+.general-message-panel {
+  /* Pour que le panneau soit centré dans son conteneur parent (.game-content) */
+  align-self: center;
+
+  /* Ne pas prendre toute la largeur : largeur automatique jusqu’à un max */
+  width: auto;
+  max-width: 400px;   /* ajuste selon le rendu souhaité (ex. 300px, 350px, etc.) */
+
+  /* Padding réduit pour moins de hauteur */
+  padding: 0.4rem 0.75rem;  /* vertical 0.4rem, horizontal 0.75rem */
+
+  /* Style visuel : tu peux conserver ou adapter */
+  background-color: #fffae6;
+  border: 1px solid #ffd700;
+  color: #333;
+  border-radius: 12px;
+
+  /* Centrer le texte à l’intérieur */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  /* Taille de police un peu plus petite si besoin */
+  font-size: 1rem;
+  line-height: 1.2;  /* pour compacter verticalement */
+}
+
+/* Anciennes règles conservées */
+
+/* Conteneur flex pour d’autres usages éventuels */
+.panel-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+/* Style de chaque panel individuel */
+.panel {
+  background: #ffffff;
+  color: #000000;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 220px;
+  text-align: center;
+}
+
+/* Grille principale des panels (MainScreen) */
+.panel-grid {
+  display: grid;
+  grid-auto-flow: column; /* ← rempli d'abord les lignes, puis crée une nouvelle colonne */
+  grid-template-rows: repeat(2, auto); /* ← 2 panels max par colonne */
+  gap: 1.5rem;
+  justify-content: center;
+  padding: 1rem;
+  margin-top: 0rem;
+}
+
+/* Sprites */
+.enemy-sprite {
+  width: 150px;
+  height: auto;
+  margin: 0.5rem auto;
+  image-rendering: pixelated;
+  display: block;
+  background: transparent;
+}
+
+.your_ship-sprite {
+  width: 150px;
+  height: auto;
+  margin: 0.5rem auto;
+  image-rendering: pixelated;
+  display: block;
+  background: transparent;
+}
+
+/* Responsive : en petit écran, empile en colonne */
+@media (max-width: 600px) {
+  .game-content {
+    padding: 0 0.5rem;
+  }
+  .panel-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    padding: 0.5rem 0;
+  }
+}
+
+button {
+  margin: 0.4rem 0.2rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+  background-color: #f2f2f2;
+  color: #000;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  background-color: #e6e6e6;
+}
+
+button:disabled {
+  background-color: #ddd;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.message-panel {
+  background: #ffffff;
+  color: #000000;
+  padding: 0.75rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 220px;
+  max-height: 200px;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+
